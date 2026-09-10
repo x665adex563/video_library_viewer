@@ -668,78 +668,85 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # --------------------
 # 主程式
 # --------------------
-root = Tk()
-root.withdraw()
-folder = filedialog.askdirectory(title="選擇影片資料夾")
-if not folder:
-    exit()
+def main():
+    global SOURCE_ROOT, ALLOW_GENERATE_COVER, TOTAL_VIDEOS, progress_label, progress_win, root, html_folder, index_file_name
 
-SOURCE_ROOT = folder   # 原始影片根目錄
+    root = Tk()
+    root.withdraw()
+    folder = filedialog.askdirectory(title="選擇影片資料夾")
+    if not folder:
+        exit()
 
-if getattr(sys, 'frozen', False):
-    APP_DIR = os.path.dirname(os.path.abspath(sys.executable))
-else:
-    APP_DIR = os.path.dirname(os.path.abspath(__file__))
+    SOURCE_ROOT = folder   # 原始影片根目錄
 
-APP_NAME = "video_library_viewer"
-viewer_root = os.path.join(APP_DIR, APP_NAME)
-os.makedirs(viewer_root, exist_ok=True)
+    if getattr(sys, 'frozen', False):
+        APP_DIR = os.path.dirname(os.path.abspath(sys.executable))
+    else:
+        APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
-video_folder_name = os.path.basename(folder)
-viewer_folder = os.path.join(viewer_root, video_folder_name)
-os.makedirs(viewer_folder, exist_ok=True)
+    APP_NAME = "video_library_viewer"
+    viewer_root = os.path.join(APP_DIR, APP_NAME)
+    os.makedirs(viewer_root, exist_ok=True)
 
-# HTML
-html_folder = os.path.join(viewer_folder, "html")
-os.makedirs(html_folder, exist_ok=True)
+    video_folder_name = os.path.basename(folder)
+    viewer_folder = os.path.join(viewer_root, video_folder_name)
+    os.makedirs(viewer_folder, exist_ok=True)
 
-# 封面
-cover_folder = os.path.join(viewer_folder, "covers")
-os.makedirs(cover_folder, exist_ok=True)
+    # HTML
+    html_folder = os.path.join(viewer_folder, "html")
+    os.makedirs(html_folder, exist_ok=True)
 
-# 程式生成暫存
-generated_folder = os.path.join(viewer_folder, "_generated")
-os.makedirs(generated_folder, exist_ok=True)
+    # 封面
+    cover_folder = os.path.join(viewer_folder, "covers")
+    os.makedirs(cover_folder, exist_ok=True)
 
-missing_covers = scan_missing_covers(SOURCE_ROOT, cover_folder)
+    # 程式生成暫存
+    generated_folder = os.path.join(viewer_folder, "_generated")
+    os.makedirs(generated_folder, exist_ok=True)
 
-if missing_covers:
-    answer = messagebox.askyesno(
-        "缺少封面圖",
-        f"發現 {len(missing_covers)} 個影片缺少封面圖，是否要生成？\n\n"
-        "選「否」將跳過封面生成（HTML 仍會建立）"
-    )
-    if not answer:
-        ALLOW_GENERATE_COVER = False
+    missing_covers = scan_missing_covers(SOURCE_ROOT, cover_folder)
 
-# 生成首頁前再判斷是否要顯示進度視窗
-TOTAL_VIDEOS = count_all_videos(SOURCE_ROOT)
+    if missing_covers:
+        answer = messagebox.askyesno(
+            "缺少封面圖",
+            f"發現 {len(missing_covers)} 個影片缺少封面圖，是否要生成？\n\n"
+            "選「否」將跳過封面生成（HTML 仍會建立）"
+        )
+        if not answer:
+            ALLOW_GENERATE_COVER = False
+
+    # 生成首頁前再判斷是否要顯示進度視窗
+    TOTAL_VIDEOS = count_all_videos(SOURCE_ROOT)
 
 
 
-if ALLOW_GENERATE_COVER:
-    progress_win, progress_label = create_progress_window(
-        TOTAL_VIDEOS,
-        on_cancel=open_index
-    )
+    if ALLOW_GENERATE_COVER:
+        progress_win, progress_label = create_progress_window(
+            TOTAL_VIDEOS,
+            on_cancel=open_index
+        )
 
-else:
-    progress_win = None
-    progress_label = None
+    else:
+        progress_win = None
+        progress_label = None
 
-# 生成首頁
-index_file_name = f"{os.path.basename(folder)}.html"
+    # 生成首頁
+    index_file_name = f"{os.path.basename(folder)}.html"
 
-try:
-    final_index = generate_index_html(
-        folder,
-        viewer_folder,
-        index_file_name
-    )
-except CancelGeneration:
-    pass
-finally:
-    if progress_win:
-        progress_win.destroy()
+    try:
+        final_index = generate_index_html(
+            folder,
+            viewer_folder,
+            index_file_name
+        )
+    except CancelGeneration:
+        pass
+    finally:
+        if progress_win:
+            progress_win.destroy()
 
-open_index()
+    open_index()
+
+
+if __name__ == "__main__":
+    main()
