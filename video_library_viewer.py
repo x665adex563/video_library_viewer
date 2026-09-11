@@ -154,29 +154,14 @@ def create_progress_window(root, total, on_cancel):
 # 封面圖生成
 # --------------------
 def generate_video_cover(video_path, cover_path, total_videos):
-    global PROCESSED_VIDEOS
-
     if CANCEL_REQUESTED:
-        PROCESSED_VIDEOS += 1
         return
 
     if not ALLOW_GENERATE_COVER or CANCEL_REQUESTED:
         # 直接略過封面生成，但 HTML 還是會生成
-        PROCESSED_VIDEOS += 1
-        if progress_label:
-            progress_label.config(
-                text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
-            )
-            progress_label.update_idletasks()
         return
 
     if os.path.exists(cover_path):
-        PROCESSED_VIDEOS += 1
-        if progress_label:
-            progress_label.config(
-                text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
-            )
-            progress_label.update_idletasks()
         return
 
     os.makedirs(os.path.dirname(cover_path), exist_ok=True)
@@ -203,12 +188,6 @@ def generate_video_cover(video_path, cover_path, total_videos):
         stderr=subprocess.DEVNULL,
         creationflags=subprocess.CREATE_NO_WINDOW
     )
-    PROCESSED_VIDEOS += 1
-    if progress_label:
-        progress_label.config(
-            text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
-        )
-        progress_label.update_idletasks()
 
 # --------------------
 # 確保用Chrome開啟
@@ -249,12 +228,6 @@ def generate_video_page(video_path, html_folder, cover_folder, total_videos):
     if not ALLOW_GENERATE_COVER or CANCEL_REQUESTED:
         # 不生成封面，改用預設封面
         cover_path = default_cover
-        PROCESSED_VIDEOS += 1
-        if progress_label:
-            progress_label.config(
-                text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
-            )
-            progress_label.update_idletasks()
     else:
         # 生成封面
         generate_video_cover(video_path, cover_path, total_videos)
@@ -507,6 +480,8 @@ video.addEventListener("click", ()=>{{ video.paused?video.play():video.pause(); 
 </body>
 </html>
 """)
+
+    PROCESSED_VIDEOS += 1
 
     if progress_label:
         progress_label.config(
