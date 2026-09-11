@@ -122,7 +122,7 @@ def count_all_videos(SOURCE_ROOT):
 # --------------------
 # 生成封面圖時的進度提示窗
 # --------------------
-def create_progress_window(total, on_cancel):
+def create_progress_window(root, total, on_cancel):
     win = Toplevel(root)
     win.title("生成中")
     win.geometry("320x120")
@@ -669,7 +669,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # 主程式
 # --------------------
 def main():
-    global SOURCE_ROOT, ALLOW_GENERATE_COVER, TOTAL_VIDEOS, progress_label, progress_win, root
+    global SOURCE_ROOT, ALLOW_GENERATE_COVER, TOTAL_VIDEOS, progress_label, progress_win
 
     root = Tk()
     root.withdraw()
@@ -722,6 +722,7 @@ def main():
 
     if ALLOW_GENERATE_COVER:
         progress_win, progress_label = create_progress_window(
+            root,
             TOTAL_VIDEOS,
             on_cancel=open_index
         )
