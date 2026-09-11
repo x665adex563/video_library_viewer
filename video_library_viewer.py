@@ -76,7 +76,7 @@ def folder_to_html_name(SOURCE_ROOT, folder_path):
 # --------------------
 # 首頁函式
 # --------------------
-def open_index():
+def open_index(html_folder, index_file_name):
     index_path = Path(html_folder) / index_file_name
 
     if not index_path.exists():
@@ -597,7 +597,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # --------------------
 # 首頁
 # --------------------
-def generate_index_html(folder, viewer_folder, index_name):
+def generate_index_html(folder, viewer_folder, html_folder, index_name):
 
     index_file_name = f"{os.path.basename(folder)}.html"
 
@@ -669,7 +669,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # 主程式
 # --------------------
 def main():
-    global SOURCE_ROOT, ALLOW_GENERATE_COVER, TOTAL_VIDEOS, progress_label, progress_win, root, html_folder, index_file_name
+    global SOURCE_ROOT, ALLOW_GENERATE_COVER, TOTAL_VIDEOS, progress_label, progress_win, root
 
     root = Tk()
     root.withdraw()
@@ -737,6 +737,7 @@ def main():
         final_index = generate_index_html(
             folder,
             viewer_folder,
+            html_folder,
             index_file_name
         )
     except CancelGeneration:
@@ -745,7 +746,7 @@ def main():
         if progress_win:
             progress_win.destroy()
 
-    open_index()
+    open_index(html_folder, index_file_name)
 
 
 if __name__ == "__main__":
