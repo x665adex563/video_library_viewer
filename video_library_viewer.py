@@ -670,12 +670,12 @@ def main():
     else:
         APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    APP_NAME = "video_library_viewer"
-    viewer_root = os.path.join(APP_DIR, APP_NAME)
-    os.makedirs(viewer_root, exist_ok=True)
+
+    OUTPUT_DIR = os.path.join(APP_DIR, "_preview_image_editor_output")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     video_folder_name = os.path.basename(folder)
-    viewer_folder = os.path.join(viewer_root, video_folder_name)
+    viewer_folder = os.path.join(OUTPUT_DIR, video_folder_name)
     os.makedirs(viewer_folder, exist_ok=True)
 
     # HTML
@@ -685,10 +685,6 @@ def main():
     # 封面
     cover_folder = os.path.join(viewer_folder, "covers")
     os.makedirs(cover_folder, exist_ok=True)
-
-    # 程式生成暫存
-    generated_folder = os.path.join(viewer_folder, "_generated")
-    os.makedirs(generated_folder, exist_ok=True)
 
     missing_covers = scan_missing_covers(SOURCE_ROOT, cover_folder)
 
