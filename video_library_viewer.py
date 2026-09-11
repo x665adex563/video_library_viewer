@@ -153,7 +153,7 @@ def create_progress_window(root, total, on_cancel):
 # --------------------
 # 封面圖生成
 # --------------------
-def generate_video_cover(video_path, cover_path):
+def generate_video_cover(video_path, cover_path, total_videos):
     global PROCESSED_VIDEOS
 
     if CANCEL_REQUESTED:
@@ -165,7 +165,7 @@ def generate_video_cover(video_path, cover_path):
         PROCESSED_VIDEOS += 1
         if progress_label:
             progress_label.config(
-                text=f"已處理 {PROCESSED_VIDEOS} / {TOTAL_VIDEOS}"
+                text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
             )
             progress_label.update_idletasks()
         return
@@ -174,7 +174,7 @@ def generate_video_cover(video_path, cover_path):
         PROCESSED_VIDEOS += 1
         if progress_label:
             progress_label.config(
-                text=f"已處理 {PROCESSED_VIDEOS} / {TOTAL_VIDEOS}"
+                text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
             )
             progress_label.update_idletasks()
         return
@@ -206,7 +206,7 @@ def generate_video_cover(video_path, cover_path):
     PROCESSED_VIDEOS += 1
     if progress_label:
         progress_label.config(
-            text=f"已處理 {PROCESSED_VIDEOS} / {TOTAL_VIDEOS}"
+            text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
         )
         progress_label.update_idletasks()
 
@@ -226,7 +226,7 @@ def find_chrome_path():
 # --------------------
 # 影片播放頁
 # --------------------
-def generate_video_page(video_path, html_folder, cover_folder):
+def generate_video_page(video_path, html_folder, cover_folder, total_videos):
     global PROCESSED_VIDEOS
 
     video_name = os.path.basename(video_path)
@@ -252,12 +252,12 @@ def generate_video_page(video_path, html_folder, cover_folder):
         PROCESSED_VIDEOS += 1
         if progress_label:
             progress_label.config(
-                text=f"已處理 {PROCESSED_VIDEOS} / {TOTAL_VIDEOS}"
+                text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
             )
             progress_label.update_idletasks()
     else:
         # 生成封面
-        generate_video_cover(video_path, cover_path)
+        generate_video_cover(video_path, cover_path, total_videos)
 
     rel_video_path = relative_path(html_file, video_path)
     rel_cover_path = relative_path(html_file, cover_path)
@@ -510,7 +510,7 @@ video.addEventListener("click", ()=>{{ video.paused?video.play():video.pause(); 
 
     if progress_label:
         progress_label.config(
-            text=f"已處理 {PROCESSED_VIDEOS} / {TOTAL_VIDEOS}"
+            text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
         )
         progress_label.update_idletasks()
         progress_win.update()
@@ -521,7 +521,7 @@ video.addEventListener("click", ()=>{{ video.paused?video.play():video.pause(); 
 # --------------------
 # 章節頁（使用封面圖）
 # --------------------
-def generate_chapter_html(folder, html_folder, parent_index_html, viewer_folder):
+def generate_chapter_html(folder, html_folder, parent_index_html, viewer_folder, total_videos):
     subdirs = sorted(
         [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
         key=natural_sort_key
@@ -568,7 +568,9 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
             d_path = os.path.join(folder, d)
             child_html = folder_to_html_name(SOURCE_ROOT, d_path)
 
-            generate_chapter_html(d_path, html_folder, html_file, viewer_folder)
+            generate_chapter_html(
+                d_path, html_folder, html_file, viewer_folder, total_videos
+            )
 
             f.write(f"""<li>
   <a href="{child_html}">
@@ -580,7 +582,9 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
         # 影片
         for vid in videos:
             vid_path = os.path.join(folder, vid)
-            video_page, cover_path = generate_video_page(vid_path, html_folder, cover_folder)
+            video_page, cover_path = generate_video_page(
+                vid_path, html_folder, cover_folder, total_videos
+            )
 
             f.write(f"""<li>
   <a href="{relative_path(html_file, video_page)}">
@@ -597,7 +601,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # --------------------
 # 首頁
 # --------------------
-def generate_index_html(folder, viewer_folder, html_folder, index_name):
+def generate_index_html(folder, viewer_folder, html_folder, index_name, total_videos):
 
     index_file_name = f"{os.path.basename(folder)}.html"
 
@@ -645,12 +649,19 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 </li>\n""")
 
             # 生成章節 HTML
-            generate_chapter_html(d_path, html_folder, html_file, viewer_folder)
+            generate_chapter_html(
+                d_path, html_folder, html_file, viewer_folder, total_videos
+            )
 
         # 影片
         for v in videos:
             v_path = os.path.join(folder, v)
-            page, cover_path = generate_video_page(v_path, html_folder, os.path.join(viewer_folder, "covers"))
+            page, cover_path = generate_video_page(
+                v_path,
+                html_folder,
+                os.path.join(viewer_folder, "covers"),
+                total_videos
+            )
 
             f.write(f"""<li>
   <a href="{relative_path(html_file, page)}">
@@ -739,7 +750,8 @@ def main():
             folder,
             viewer_folder,
             html_folder,
-            index_file_name
+            index_file_name,
+            TOTAL_VIDEOS
         )
     except CancelGeneration:
         pass
