@@ -28,7 +28,6 @@ FFMPEG_EXE = os.path.join(APP_DIR, "ffmpeg", "bin", "ffmpeg.exe")
 # 設定 / 常數
 # --------------------
 VIDEO_EXTENSIONS = (".mp4", ".mkv", ".webm", ".avi", ".mov")
-ALLOW_GENERATE_COVER = True
 
 # --------------------
 # 取消用例外
@@ -151,11 +150,13 @@ def create_progress_window(root, total, on_cancel):
 # --------------------
 # 封面圖生成
 # --------------------
-def generate_video_cover(video_path, cover_path, total_videos):
+def generate_video_cover(
+    video_path, cover_path, total_videos, allow_generate_cover
+):
     if CANCEL_REQUESTED:
         return
 
-    if not ALLOW_GENERATE_COVER or CANCEL_REQUESTED:
+    if not allow_generate_cover or CANCEL_REQUESTED:
         # 直接略過封面生成，但 HTML 還是會生成
         return
 
@@ -204,7 +205,12 @@ def find_chrome_path():
 # 影片播放頁
 # --------------------
 def generate_video_page(
-    video_path, html_folder, cover_folder, total_videos, processed_videos
+    video_path,
+    html_folder,
+    cover_folder,
+    total_videos,
+    processed_videos,
+    allow_generate_cover,
 ):
 
     video_name = os.path.basename(video_path)
@@ -224,12 +230,14 @@ def generate_video_page(
     # 封面路徑
     cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
 
-    if not ALLOW_GENERATE_COVER or CANCEL_REQUESTED:
+    if not allow_generate_cover or CANCEL_REQUESTED:
         # 不生成封面，改用預設封面
         cover_path = default_cover
     else:
         # 生成封面
-        generate_video_cover(video_path, cover_path, total_videos)
+        generate_video_cover(
+            video_path, cover_path, total_videos, allow_generate_cover
+        )
 
     rel_video_path = relative_path(html_file, video_path)
     rel_cover_path = relative_path(html_file, cover_path)
@@ -502,6 +510,7 @@ def generate_chapter_html(
     viewer_folder,
     total_videos,
     processed_videos,
+    allow_generate_cover,
 ):
     subdirs = sorted(
         [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
@@ -549,8 +558,14 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
             d_path = os.path.join(folder, d)
             child_html = folder_to_html_name(SOURCE_ROOT, d_path)
 
-            generate_chapter_html(
-                d_path, html_folder, html_file, viewer_folder, total_videos
+            chapter_html, processed_videos = generate_chapter_html(
+                d_path,
+                html_folder,
+                html_file,
+                viewer_folder,
+                total_videos,
+                processed_videos,
+                allow_generate_cover,
             )
 
             f.write(f"""<li>
@@ -564,7 +579,12 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
         for vid in videos:
             vid_path = os.path.join(folder, vid)
             video_page, cover_path, processed_videos = generate_video_page(
-                vid_path, html_folder, cover_folder, total_videos, processed_videos
+                vid_path,
+                html_folder,
+                cover_folder,
+                total_videos,
+                processed_videos,
+                allow_generate_cover,
             )
 
             f.write(f"""<li>
@@ -589,6 +609,7 @@ def generate_index_html(
     index_name,
     total_videos,
     processed_videos,
+    allow_generate_cover,
 ):
 
     index_file_name = f"{os.path.basename(folder)}.html"
@@ -644,6 +665,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 viewer_folder,
                 total_videos,
                 processed_videos,
+                allow_generate_cover,
             )
 
         # 影片
@@ -654,7 +676,8 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 html_folder,
                 os.path.join(viewer_folder, "covers"),
                 total_videos,
-                processed_videos
+                processed_videos,
+                allow_generate_cover,
             )
 
             f.write(f"""<li>
@@ -673,8 +696,9 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # 主程式
 # --------------------
 def main():
-    global SOURCE_ROOT, ALLOW_GENERATE_COVER, progress_label, progress_win
+    global SOURCE_ROOT, progress_label, progress_win
 
+    allow_generate_cover = True
     root = Tk()
     root.withdraw()
     folder = filedialog.askdirectory(title="選擇影片資料夾")
@@ -713,14 +737,14 @@ def main():
             "選「否」將跳過封面生成（HTML 仍會建立）"
         )
         if not answer:
-            ALLOW_GENERATE_COVER = False
+            allow_generate_cover = False
 
     # 生成首頁前再判斷是否要顯示進度視窗
     total_videos = count_all_videos(SOURCE_ROOT)
     processed_videos = 0
 
 
-    if ALLOW_GENERATE_COVER:
+    if allow_generate_cover:
         progress_win, progress_label = create_progress_window(
             root,
             total_videos,
@@ -742,6 +766,7 @@ def main():
             index_file_name,
             total_videos,
             processed_videos,
+            allow_generate_cover,
         )
     except CancelGeneration:
         pass
