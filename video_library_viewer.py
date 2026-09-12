@@ -199,6 +199,7 @@ def find_chrome_path():
 # 影片播放頁
 # --------------------
 def generate_video_page(
+    SOURCE_ROOT,
     video_path,
     html_folder,
     cover_folder,
@@ -498,6 +499,7 @@ video.addEventListener("click", ()=>{{ video.paused?video.play():video.pause(); 
 # 章節頁（使用封面圖）
 # --------------------
 def generate_chapter_html(
+    SOURCE_ROOT,
     folder,
     html_folder,
     parent_index_html,
@@ -553,6 +555,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
             child_html = folder_to_html_name(SOURCE_ROOT, d_path)
 
             chapter_html, processed_videos = generate_chapter_html(
+                SOURCE_ROOT,
                 d_path,
                 html_folder,
                 html_file,
@@ -573,6 +576,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
         for vid in videos:
             vid_path = os.path.join(folder, vid)
             video_page, cover_path, processed_videos = generate_video_page(
+                SOURCE_ROOT,
                 vid_path,
                 html_folder,
                 cover_folder,
@@ -597,6 +601,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # 首頁
 # --------------------
 def generate_index_html(
+    SOURCE_ROOT,
     folder,
     viewer_folder,
     html_folder,
@@ -666,6 +671,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
         for v in videos:
             v_path = os.path.join(folder, v)
             page, cover_path, processed_videos = generate_video_page(
+                SOURCE_ROOT,
                 v_path,
                 html_folder,
                 os.path.join(viewer_folder, "covers"),
@@ -690,7 +696,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # 主程式
 # --------------------
 def main():
-    global SOURCE_ROOT, progress_label, progress_win
+    global progress_label, progress_win
 
     allow_generate_cover = True
     root = Tk()
@@ -754,6 +760,7 @@ def main():
 
     try:
         final_index, processed_videos = generate_index_html(
+            SOURCE_ROOT,
             folder,
             viewer_folder,
             html_folder,
