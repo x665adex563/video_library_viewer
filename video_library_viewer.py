@@ -39,7 +39,6 @@ class CancelGeneration(Exception):
 # --------------------
 # 進度狀態
 # --------------------
-TOTAL_VIDEOS = 0
 CANCEL_REQUESTED = False
 
 # 封面圖
@@ -674,7 +673,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # 主程式
 # --------------------
 def main():
-    global SOURCE_ROOT, ALLOW_GENERATE_COVER, TOTAL_VIDEOS, progress_label, progress_win
+    global SOURCE_ROOT, ALLOW_GENERATE_COVER, progress_label, progress_win
 
     root = Tk()
     root.withdraw()
@@ -717,14 +716,14 @@ def main():
             ALLOW_GENERATE_COVER = False
 
     # 生成首頁前再判斷是否要顯示進度視窗
-    TOTAL_VIDEOS = count_all_videos(SOURCE_ROOT)
+    total_videos = count_all_videos(SOURCE_ROOT)
     processed_videos = 0
 
 
     if ALLOW_GENERATE_COVER:
         progress_win, progress_label = create_progress_window(
             root,
-            TOTAL_VIDEOS,
+            total_videos,
             on_cancel=open_index
         )
 
@@ -741,7 +740,7 @@ def main():
             viewer_folder,
             html_folder,
             index_file_name,
-            TOTAL_VIDEOS,
+            total_videos,
             processed_videos,
         )
     except CancelGeneration:
