@@ -30,12 +30,6 @@ FFMPEG_EXE = os.path.join(APP_DIR, "ffmpeg", "bin", "ffmpeg.exe")
 VIDEO_EXTENSIONS = (".mp4", ".mkv", ".webm", ".avi", ".mov")
 
 # --------------------
-# 取消用例外
-# --------------------
-class CancelGeneration(Exception):
-    pass
-
-# --------------------
 # 進度狀態
 # --------------------
 CANCEL_REQUESTED = False
@@ -768,8 +762,6 @@ def main():
             processed_videos,
             allow_generate_cover,
         )
-    except CancelGeneration:
-        pass
     finally:
         if progress_win:
             progress_win.destroy()
