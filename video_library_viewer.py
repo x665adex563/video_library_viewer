@@ -40,7 +40,6 @@ class CancelGeneration(Exception):
 # 進度狀態
 # --------------------
 TOTAL_VIDEOS = 0
-PROCESSED_VIDEOS = 0
 CANCEL_REQUESTED = False
 
 # 封面圖
@@ -205,8 +204,9 @@ def find_chrome_path():
 # --------------------
 # 影片播放頁
 # --------------------
-def generate_video_page(video_path, html_folder, cover_folder, total_videos):
-    global PROCESSED_VIDEOS
+def generate_video_page(
+    video_path, html_folder, cover_folder, total_videos, processed_videos
+):
 
     video_name = os.path.basename(video_path)
     video_base = os.path.splitext(video_name)[0]
@@ -481,22 +481,29 @@ video.addEventListener("click", ()=>{{ video.paused?video.play():video.pause(); 
 </html>
 """)
 
-    PROCESSED_VIDEOS += 1
+    processed_videos += 1
 
     if progress_label:
         progress_label.config(
-            text=f"已處理 {PROCESSED_VIDEOS} / {total_videos}"
+            text=f"已處理 {processed_videos} / {total_videos}"
         )
         progress_label.update_idletasks()
         progress_win.update()
 
-    return html_file, cover_path
+    return html_file, cover_path, processed_videos
 
 
 # --------------------
 # 章節頁（使用封面圖）
 # --------------------
-def generate_chapter_html(folder, html_folder, parent_index_html, viewer_folder, total_videos):
+def generate_chapter_html(
+    folder,
+    html_folder,
+    parent_index_html,
+    viewer_folder,
+    total_videos,
+    processed_videos,
+):
     subdirs = sorted(
         [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
         key=natural_sort_key
@@ -557,8 +564,8 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
         # 影片
         for vid in videos:
             vid_path = os.path.join(folder, vid)
-            video_page, cover_path = generate_video_page(
-                vid_path, html_folder, cover_folder, total_videos
+            video_page, cover_path, processed_videos = generate_video_page(
+                vid_path, html_folder, cover_folder, total_videos, processed_videos
             )
 
             f.write(f"""<li>
@@ -570,13 +577,20 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 
         f.write('</ul>\n</body></html>\n')
 
-    return html_file
+    return html_file, processed_videos
 
 
 # --------------------
 # 首頁
 # --------------------
-def generate_index_html(folder, viewer_folder, html_folder, index_name, total_videos):
+def generate_index_html(
+    folder,
+    viewer_folder,
+    html_folder,
+    index_name,
+    total_videos,
+    processed_videos,
+):
 
     index_file_name = f"{os.path.basename(folder)}.html"
 
@@ -624,18 +638,24 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 </li>\n""")
 
             # 生成章節 HTML
-            generate_chapter_html(
-                d_path, html_folder, html_file, viewer_folder, total_videos
+            chapter_html, processed_videos = generate_chapter_html(
+                d_path,
+                html_folder,
+                html_file,
+                viewer_folder,
+                total_videos,
+                processed_videos,
             )
 
         # 影片
         for v in videos:
             v_path = os.path.join(folder, v)
-            page, cover_path = generate_video_page(
+            page, cover_path, processed_videos = generate_video_page(
                 v_path,
                 html_folder,
                 os.path.join(viewer_folder, "covers"),
-                total_videos
+                total_videos,
+                processed_videos
             )
 
             f.write(f"""<li>
@@ -647,8 +667,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 
         f.write("</ul></body></html>")
 
-    return html_file
-
+    return html_file, processed_videos
 
 
 # --------------------
@@ -699,7 +718,7 @@ def main():
 
     # 生成首頁前再判斷是否要顯示進度視窗
     TOTAL_VIDEOS = count_all_videos(SOURCE_ROOT)
-
+    processed_videos = 0
 
 
     if ALLOW_GENERATE_COVER:
@@ -717,12 +736,13 @@ def main():
     index_file_name = f"{os.path.basename(folder)}.html"
 
     try:
-        final_index = generate_index_html(
+        final_index, processed_videos = generate_index_html(
             folder,
             viewer_folder,
             html_folder,
             index_file_name,
-            TOTAL_VIDEOS
+            TOTAL_VIDEOS,
+            processed_videos,
         )
     except CancelGeneration:
         pass
