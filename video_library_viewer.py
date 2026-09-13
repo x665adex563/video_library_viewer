@@ -29,10 +29,6 @@ FFMPEG_EXE = os.path.join(APP_DIR, "ffmpeg", "bin", "ffmpeg.exe")
 # --------------------
 VIDEO_EXTENSIONS = (".mp4", ".mkv", ".webm", ".avi", ".mov")
 
-# --------------------
-# 進度狀態
-# --------------------
-CANCEL_REQUESTED = False
 
 # 封面圖
 # 封面圖（Level 1：固定時間點）
@@ -113,7 +109,7 @@ def count_all_videos(SOURCE_ROOT):
 # --------------------
 # 生成封面圖時的進度提示窗
 # --------------------
-def create_progress_window(root, total):
+def create_progress_window(root, total, cancel_state):
     win = Toplevel(root)
     win.title("生成中")
     win.geometry("320x120")
@@ -127,8 +123,7 @@ def create_progress_window(root, total):
     label.pack(pady=10)
 
     def cancel():
-        global CANCEL_REQUESTED
-        CANCEL_REQUESTED = True
+        cancel_state["requested"] = True
 
     btn = Button(
         win,
@@ -145,12 +140,12 @@ def create_progress_window(root, total):
 # 封面圖生成
 # --------------------
 def generate_video_cover(
-    video_path, cover_path, total_videos, allow_generate_cover
+    video_path, cover_path, total_videos, allow_generate_cover, cancel_state
 ):
-    if CANCEL_REQUESTED:
+    if cancel_state["requested"]:
         return
 
-    if not allow_generate_cover or CANCEL_REQUESTED:
+    if not allow_generate_cover or cancel_state["requested"]:
         # 直接略過封面生成，但 HTML 還是會生成
         return
 
@@ -206,6 +201,7 @@ def generate_video_page(
     total_videos,
     processed_videos,
     allow_generate_cover,
+    cancel_state,
 ):
 
     video_name = os.path.basename(video_path)
@@ -225,13 +221,13 @@ def generate_video_page(
     # 封面路徑
     cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
 
-    if not allow_generate_cover or CANCEL_REQUESTED:
+    if not allow_generate_cover or cancel_state["requested"]:
         # 不生成封面，改用預設封面
         cover_path = default_cover
     else:
         # 生成封面
         generate_video_cover(
-            video_path, cover_path, total_videos, allow_generate_cover
+            video_path, cover_path, total_videos, allow_generate_cover, cancel_state
         )
 
     rel_video_path = relative_path(html_file, video_path)
@@ -507,6 +503,7 @@ def generate_chapter_html(
     total_videos,
     processed_videos,
     allow_generate_cover,
+    cancel_state,
 ):
     subdirs = sorted(
         [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
@@ -583,6 +580,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 total_videos,
                 processed_videos,
                 allow_generate_cover,
+                cancel_state,
             )
 
             f.write(f"""<li>
@@ -609,6 +607,7 @@ def generate_index_html(
     total_videos,
     processed_videos,
     allow_generate_cover,
+    cancel_state,
 ):
 
     index_file_name = f"{os.path.basename(folder)}.html"
@@ -678,6 +677,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 total_videos,
                 processed_videos,
                 allow_generate_cover,
+                cancel_state,
             )
 
             f.write(f"""<li>
@@ -699,6 +699,7 @@ def main():
     global progress_label, progress_win
 
     allow_generate_cover = True
+    cancel_state = {"requested": False}
     root = Tk()
     root.withdraw()
     folder = filedialog.askdirectory(title="選擇影片資料夾")
@@ -748,6 +749,7 @@ def main():
         progress_win, progress_label = create_progress_window(
             root,
             total_videos,
+            cancel_state,
         )
 
     else:
@@ -767,6 +769,7 @@ def main():
             total_videos,
             processed_videos,
             allow_generate_cover,
+            cancel_state,
         )
     finally:
         if progress_win:
