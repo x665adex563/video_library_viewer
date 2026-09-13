@@ -202,6 +202,7 @@ def generate_video_page(
     processed_videos,
     allow_generate_cover,
     cancel_state,
+    update_progress,
 ):
 
     video_name = os.path.basename(video_path)
@@ -481,12 +482,7 @@ video.addEventListener("click", ()=>{{ video.paused?video.play():video.pause(); 
 
     processed_videos += 1
 
-    if progress_label:
-        progress_label.config(
-            text=f"已處理 {processed_videos} / {total_videos}"
-        )
-        progress_label.update_idletasks()
-        progress_win.update()
+    update_progress(processed_videos, total_videos)
 
     return html_file, cover_path, processed_videos
 
@@ -504,6 +500,7 @@ def generate_chapter_html(
     processed_videos,
     allow_generate_cover,
     cancel_state,
+    update_progress,
 ):
     subdirs = sorted(
         [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
@@ -581,6 +578,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 processed_videos,
                 allow_generate_cover,
                 cancel_state,
+                update_progress,
             )
 
             f.write(f"""<li>
@@ -608,6 +606,7 @@ def generate_index_html(
     processed_videos,
     allow_generate_cover,
     cancel_state,
+    update_progress,
 ):
 
     index_file_name = f"{os.path.basename(folder)}.html"
@@ -678,6 +677,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 processed_videos,
                 allow_generate_cover,
                 cancel_state,
+                update_progress,
             )
 
             f.write(f"""<li>
@@ -696,8 +696,6 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 # 主程式
 # --------------------
 def main():
-    global progress_label, progress_win
-
     allow_generate_cover = True
     cancel_state = {"requested": False}
     root = Tk()
@@ -756,6 +754,14 @@ def main():
         progress_win = None
         progress_label = None
 
+    def update_progress(processed_videos, total_videos):
+        if progress_label:
+            progress_label.config(
+                text=f"已處理 {processed_videos} / {total_videos}"
+            )
+            progress_label.update_idletasks()
+            progress_win.update()
+
     # 生成首頁
     index_file_name = f"{os.path.basename(folder)}.html"
 
@@ -770,6 +776,7 @@ def main():
             processed_videos,
             allow_generate_cover,
             cancel_state,
+            update_progress,
         )
     finally:
         if progress_win:
