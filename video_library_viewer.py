@@ -113,7 +113,7 @@ def count_all_videos(SOURCE_ROOT):
 # --------------------
 # 生成封面圖時的進度提示窗
 # --------------------
-def create_progress_window(root, total, on_cancel):
+def create_progress_window(root, total):
     win = Toplevel(root)
     win.title("生成中")
     win.geometry("320x120")
@@ -748,7 +748,6 @@ def main():
         progress_win, progress_label = create_progress_window(
             root,
             total_videos,
-            on_cancel=open_index
         )
 
     else:
