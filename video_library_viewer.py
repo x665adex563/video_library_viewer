@@ -13,13 +13,6 @@ from tkinter import Toplevel
 from pathlib import Path
 import sys
 
-# --------------------
-# ffmpeg 路徑設定
-# --------------------
-if getattr(sys, 'frozen', False):
-    APP_DIR = os.path.dirname(sys.executable)
-else:
-    APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # --------------------
 # 設定 / 常數
