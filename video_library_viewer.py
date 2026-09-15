@@ -161,7 +161,6 @@ def create_progress_window(root, total, cancel_state):
 def generate_video_cover(
     video_path,
     cover_path,
-    total_videos,
     allow_generate_cover,
     ffmpeg_exe,
     cancel_state,
@@ -287,7 +286,6 @@ def generate_video_page(
         generate_video_cover(
             video_path,
             cover_path,
-            total_videos,
             allow_generate_cover,
             ffmpeg_exe,
             cancel_state,
