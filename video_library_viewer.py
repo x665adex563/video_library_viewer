@@ -280,8 +280,11 @@ def generate_video_page(
     rel_video_path = relative_path(html_file, video_path)
     rel_cover_path = relative_path(html_file, cover_path)
 
-    folder = os.path.dirname(video_path)
-    video_list_json = build_video_list(folder, html_folder, html_file)
+    video_list_json = build_video_list(
+        os.path.dirname(video_path),
+        html_folder,
+        html_file
+    )
 
     rel_parent_html = build_parent_html_path(
         SOURCE_ROOT,
