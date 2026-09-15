@@ -165,7 +165,6 @@ def generate_video_cover(
 
     os.makedirs(os.path.dirname(cover_path), exist_ok=True)
 
-    capture_time = COVER_CAPTURE_TIME
 
     # 自動判斷 ffmpeg 路徑
     if os.path.exists(ffmpeg_exe):
@@ -176,7 +175,7 @@ def generate_video_cover(
     subprocess.run(
         [
             ffmpeg_cmd,
-            "-ss", str(capture_time),
+            "-ss", str(COVER_CAPTURE_TIME),
             "-i", video_path,
             "-frames:v", "1",
             "-vf", f"scale={COVER_WIDTH}:{COVER_HEIGHT}:force_original_aspect_ratio=decrease,"
