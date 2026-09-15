@@ -193,6 +193,26 @@ def find_chrome_path():
     return None
 
 # --------------------
+# 右側清單
+# --------------------
+def build_video_list(folder, html_folder, html_file):
+    folder_videos = sorted(
+        [f for f in os.listdir(folder) if f.lower().endswith(VIDEO_EXTENSIONS)],
+        key=natural_sort_key
+    )
+
+    video_list = []
+    for vid in folder_videos:
+        vid_base = os.path.splitext(vid)[0]
+        vid_html = os.path.join(html_folder, f"{vid}.html")
+        video_list.append({
+            "name": vid_base,
+            "html": relative_path(html_file, vid_html)
+        })
+
+    return json.dumps(video_list, ensure_ascii=False)
+
+# --------------------
 # 影片播放頁
 # --------------------
 def generate_video_page(
@@ -242,23 +262,8 @@ def generate_video_page(
     rel_video_path = relative_path(html_file, video_path)
     rel_cover_path = relative_path(html_file, cover_path)
 
-    # ---------- 右側清單 ----------
     folder = os.path.dirname(video_path)
-    folder_videos = sorted(
-        [f for f in os.listdir(folder) if f.lower().endswith(VIDEO_EXTENSIONS)],
-        key=natural_sort_key
-    )
-
-    video_list = []
-    for vid in folder_videos:
-        vid_base = os.path.splitext(vid)[0]
-        vid_html = os.path.join(html_folder, f"{vid}.html")
-        video_list.append({
-            "name": vid_base,
-            "html": relative_path(html_file, vid_html)
-        })
-
-    video_list_json = json.dumps(video_list, ensure_ascii=False)
+    video_list_json = build_video_list(folder, html_folder, html_file)
 
     parent_folder = os.path.dirname(video_path)
     parent_html = folder_to_html_name(SOURCE_ROOT, parent_folder)
