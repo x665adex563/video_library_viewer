@@ -192,6 +192,17 @@ def find_chrome_path():
             return path
     return None
 
+def ensure_default_cover(cover_folder):
+    # 預設封面（黑底）
+    default_cover = os.path.join(cover_folder, "default.jpg")
+
+    if not os.path.exists(default_cover):
+        from PIL import Image
+        img = Image.new("RGB", (COVER_WIDTH, COVER_HEIGHT), color=(0, 0, 0))
+        img.save(default_cover)
+
+    return default_cover
+
 # --------------------
 # 右側清單
 # --------------------
@@ -235,12 +246,7 @@ def generate_video_page(
     # 確保封面資料夾存在
     os.makedirs(cover_folder, exist_ok=True)
 
-    # 預設封面（黑底）
-    default_cover = os.path.join(cover_folder, "default.jpg")
-    if not os.path.exists(default_cover):
-        from PIL import Image
-        img = Image.new("RGB", (COVER_WIDTH, COVER_HEIGHT), color=(0, 0, 0))
-        img.save(default_cover)
+    default_cover = ensure_default_cover(cover_folder)
 
     # 封面路徑
     cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
