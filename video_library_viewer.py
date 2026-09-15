@@ -161,15 +161,10 @@ def create_progress_window(root, total, cancel_state):
 def generate_video_cover(
     video_path,
     cover_path,
-    allow_generate_cover,
     ffmpeg_exe,
     cancel_state,
 ):
     if cancel_state["requested"]:
-        return
-
-    if not allow_generate_cover or cancel_state["requested"]:
-        # 直接略過封面生成，但 HTML 還是會生成
         return
 
     if os.path.exists(cover_path):
@@ -278,7 +273,7 @@ def generate_video_page(
     # 封面路徑
     cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
 
-    if not allow_generate_cover or cancel_state["requested"]:
+    if cancel_state["requested"]:
         # 不生成封面，改用預設封面
         cover_path = default_cover
     else:
@@ -286,7 +281,6 @@ def generate_video_page(
         generate_video_cover(
             video_path,
             cover_path,
-            allow_generate_cover,
             ffmpeg_exe,
             cancel_state,
         )
