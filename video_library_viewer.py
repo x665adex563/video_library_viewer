@@ -51,6 +51,16 @@ def get_subdirectories(folder):
         key=natural_sort_key
     )
 
+def get_all_videos(SOURCE_ROOT):
+    videos = []
+
+    for root, _, files in os.walk(SOURCE_ROOT):
+        for f in files:
+            if f.lower().endswith(VIDEO_EXTENSIONS):
+                videos.append(os.path.join(root, f))
+
+    return videos
+
 def relative_path(from_path, to_path):
     from_path_abs = os.path.abspath(from_path)
     to_path_abs = os.path.abspath(to_path)
@@ -95,12 +105,12 @@ def scan_missing_covers(SOURCE_ROOT, cover_folder):
     """
     missing = []
 
-    for root, _, files in os.walk(SOURCE_ROOT):
-        for f in files:
-            if f.lower().endswith(VIDEO_EXTENSIONS):
-                cover_path = os.path.join(cover_folder, f"{f}.jpg")
-                if not os.path.exists(cover_path):
-                    missing.append(os.path.join(root, f))
+    for video_path in get_all_videos(SOURCE_ROOT):
+        video_name = os.path.basename(video_path)
+        cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
+
+        if not os.path.exists(cover_path):
+            missing.append(video_path)
 
     return missing
 
