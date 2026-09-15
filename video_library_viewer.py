@@ -39,6 +39,12 @@ COVER_HEIGHT = 180
 def natural_sort_key(s):
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
 
+def get_videos(folder):
+    return sorted(
+        [f for f in os.listdir(folder) if f.lower().endswith(VIDEO_EXTENSIONS)],
+        key=natural_sort_key
+    )
+
 def get_subdirectories(folder):
     return sorted(
         [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
@@ -213,10 +219,7 @@ def ensure_default_cover(cover_folder):
 # 右側清單
 # --------------------
 def build_video_list(folder, html_folder, html_file):
-    folder_videos = sorted(
-        [f for f in os.listdir(folder) if f.lower().endswith(VIDEO_EXTENSIONS)],
-        key=natural_sort_key
-    )
+    folder_videos = get_videos(folder)
 
     video_list = []
     for vid in folder_videos:
@@ -542,10 +545,7 @@ def generate_chapter_html(
 ):
     subdirs = get_subdirectories(folder)
 
-    videos = sorted(
-        [f for f in os.listdir(folder) if f.lower().endswith(VIDEO_EXTENSIONS)],
-        key=natural_sort_key
-    )
+    videos = get_videos(folder)
 
     folder_name = os.path.basename(folder)
     html_name = folder_to_html_name(SOURCE_ROOT, folder)
@@ -657,10 +657,7 @@ def generate_index_html(
 
     subdirs = get_subdirectories(folder)
 
-    videos = sorted(
-        [f for f in os.listdir(folder) if f.lower().endswith(VIDEO_EXTENSIONS)],
-        key=natural_sort_key
-    )
+    videos = get_videos(folder)
 
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(f"""<!DOCTYPE html>
