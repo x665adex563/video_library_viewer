@@ -39,6 +39,12 @@ COVER_HEIGHT = 180
 def natural_sort_key(s):
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
 
+def get_subdirectories(folder):
+    return sorted(
+        [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
+        key=natural_sort_key
+    )
+
 def relative_path(from_path, to_path):
     from_path_abs = os.path.abspath(from_path)
     to_path_abs = os.path.abspath(to_path)
@@ -534,10 +540,8 @@ def generate_chapter_html(
     cancel_state,
     update_progress,
 ):
-    subdirs = sorted(
-        [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
-        key=natural_sort_key
-    )
+    subdirs = get_subdirectories(folder)
+
     videos = sorted(
         [f for f in os.listdir(folder) if f.lower().endswith(VIDEO_EXTENSIONS)],
         key=natural_sort_key
@@ -651,10 +655,8 @@ def generate_index_html(
     html_file = os.path.join(html_folder, index_name)
     folder_name = os.path.basename(folder)
 
-    subdirs = sorted(
-        [d for d in os.listdir(folder) if os.path.isdir(os.path.join(folder, d))],
-        key=natural_sort_key
-    )
+    subdirs = get_subdirectories(folder)
+
     videos = sorted(
         [f for f in os.listdir(folder) if f.lower().endswith(VIDEO_EXTENSIONS)],
         key=natural_sort_key
