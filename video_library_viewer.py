@@ -590,6 +590,8 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 processed_videos,
                 allow_generate_cover,
                 ffmpeg_exe,
+                cancel_state,
+                update_progress,
             )
 
             f.write(f"""<li>
@@ -691,6 +693,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 
             # 生成章節 HTML
             chapter_html, processed_videos = generate_chapter_html(
+                SOURCE_ROOT,
                 d_path,
                 html_folder,
                 html_file,
@@ -699,6 +702,8 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 processed_videos,
                 allow_generate_cover,
                 ffmpeg_exe,
+                cancel_state,
+                update_progress,
             )
 
         # 影片
