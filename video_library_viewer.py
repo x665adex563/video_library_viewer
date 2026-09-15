@@ -21,9 +21,6 @@ if getattr(sys, 'frozen', False):
 else:
     APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 指定 ffmpeg.exe 路徑
-FFMPEG_EXE = os.path.join(APP_DIR, "ffmpeg", "bin", "ffmpeg.exe")
-
 # --------------------
 # 設定 / 常數
 # --------------------
@@ -140,7 +137,12 @@ def create_progress_window(root, total, cancel_state):
 # 封面圖生成
 # --------------------
 def generate_video_cover(
-    video_path, cover_path, total_videos, allow_generate_cover, cancel_state
+    video_path,
+    cover_path,
+    total_videos,
+    allow_generate_cover,
+    ffmpeg_exe,
+    cancel_state,
 ):
     if cancel_state["requested"]:
         return
@@ -157,8 +159,8 @@ def generate_video_cover(
     capture_time = COVER_CAPTURE_TIME
 
     # 自動判斷 ffmpeg 路徑
-    if os.path.exists(FFMPEG_EXE):
-        ffmpeg_cmd = FFMPEG_EXE
+    if os.path.exists(ffmpeg_exe):
+        ffmpeg_cmd = ffmpeg_exe
     else:
         ffmpeg_cmd = "ffmpeg"
 
@@ -201,6 +203,7 @@ def generate_video_page(
     total_videos,
     processed_videos,
     allow_generate_cover,
+    ffmpeg_exe,
     cancel_state,
     update_progress,
 ):
@@ -228,7 +231,12 @@ def generate_video_page(
     else:
         # 生成封面
         generate_video_cover(
-            video_path, cover_path, total_videos, allow_generate_cover, cancel_state
+            video_path,
+            cover_path,
+            total_videos,
+            allow_generate_cover,
+            ffmpeg_exe,
+            cancel_state,
         )
 
     rel_video_path = relative_path(html_file, video_path)
@@ -499,6 +507,7 @@ def generate_chapter_html(
     total_videos,
     processed_videos,
     allow_generate_cover,
+    ffmpeg_exe,
     cancel_state,
     update_progress,
 ):
@@ -557,6 +566,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 total_videos,
                 processed_videos,
                 allow_generate_cover,
+                ffmpeg_exe,
             )
 
             f.write(f"""<li>
@@ -577,6 +587,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 total_videos,
                 processed_videos,
                 allow_generate_cover,
+                ffmpeg_exe,
                 cancel_state,
                 update_progress,
             )
@@ -605,6 +616,7 @@ def generate_index_html(
     total_videos,
     processed_videos,
     allow_generate_cover,
+    ffmpeg_exe,
     cancel_state,
     update_progress,
 ):
@@ -663,6 +675,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 total_videos,
                 processed_videos,
                 allow_generate_cover,
+                ffmpeg_exe,
             )
 
         # 影片
@@ -676,6 +689,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 total_videos,
                 processed_videos,
                 allow_generate_cover,
+                ffmpeg_exe,
                 cancel_state,
                 update_progress,
             )
@@ -711,6 +725,7 @@ def main():
     else:
         APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
+    ffmpeg_exe = os.path.join(APP_DIR, "ffmpeg", "bin", "ffmpeg.exe")
 
     OUTPUT_DIR = os.path.join(APP_DIR, "_preview_image_editor_output")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -775,6 +790,7 @@ def main():
             total_videos,
             processed_videos,
             allow_generate_cover,
+            ffmpeg_exe,
             cancel_state,
             update_progress,
         )
