@@ -580,7 +580,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
             d_path = os.path.join(folder, d)
             child_html = folder_to_html_name(SOURCE_ROOT, d_path)
 
-            chapter_html, processed_videos = generate_chapter_html(
+            processed_videos = generate_chapter_html(
                 SOURCE_ROOT,
                 d_path,
                 html_folder,
@@ -625,7 +625,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 
         f.write('</ul>\n</body></html>\n')
 
-    return html_file, processed_videos
+    return processed_videos
 
 
 # --------------------
@@ -686,7 +686,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 </li>\n""")
 
             # 生成章節 HTML
-            chapter_html, processed_videos = generate_chapter_html(
+            processed_videos = generate_chapter_html(
                 SOURCE_ROOT,
                 d_path,
                 html_folder,
