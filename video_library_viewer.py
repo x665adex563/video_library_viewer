@@ -528,7 +528,6 @@ def generate_chapter_html(
     SOURCE_ROOT,
     folder,
     html_folder,
-    parent_index_html,
     viewer_folder,
     total_videos,
     processed_videos,
@@ -567,8 +566,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 </head>
 <body>
 """)
-        if parent_index_html:
-            f.write('<div id="back"><a href="javascript:history.back()">← 返回</a></div>\n')
+        f.write('<div id="back"><a href="javascript:history.back()">← 返回</a></div>\n')
 
         f.write('<ul>\n')
 
@@ -581,7 +579,6 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 SOURCE_ROOT,
                 d_path,
                 html_folder,
-                html_file,
                 viewer_folder,
                 total_videos,
                 processed_videos,
@@ -682,7 +679,6 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 SOURCE_ROOT,
                 d_path,
                 html_folder,
-                html_file,
                 viewer_folder,
                 total_videos,
                 processed_videos,
