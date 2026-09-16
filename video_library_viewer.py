@@ -228,55 +228,14 @@ def build_video_list(folder, html_folder, html_file):
 
     return json.dumps(video_list, ensure_ascii=False)
 
-# --------------------
-# 影片播放頁
-# --------------------
-def generate_video_page(
-    video_path,
-    html_folder,
-    cover_folder,
-    total_videos,
-    processed_videos,
-    ffmpeg_exe,
-    cancel_state,
-    update_progress,
+def build_video_page_html(
+    video_name,
+    video_base,
+    rel_video_path,
+    video_list_json,
 ):
-
-    video_name = os.path.basename(video_path)
-    video_base = os.path.splitext(video_name)[0]
-    html_file = os.path.join(html_folder, f"{video_name}.html")
-
-    # 確保封面資料夾存在
-    os.makedirs(cover_folder, exist_ok=True)
-
-    default_cover = ensure_default_cover(cover_folder)
-
-    # 封面路徑
-    cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
-
-    if cancel_state["requested"]:
-        # 不生成封面，改用預設封面
-        cover_path = default_cover
-    else:
-        # 生成封面
-        generate_video_cover(
-            video_path,
-            cover_path,
-            ffmpeg_exe,
-            cancel_state,
-        )
-
-    rel_video_path = relative_path(html_file, video_path)
-
-    video_list_json = build_video_list(
-        os.path.dirname(video_path),
-        html_folder,
-        html_file
-    )
-
-    # ---------- 寫入 HTML ----------
-    with open(html_file, "w", encoding="utf-8") as f:
-        f.write(f"""<!DOCTYPE html>
+    return f"""
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -496,7 +455,64 @@ video.addEventListener("click", ()=>{{ video.paused?video.play():video.pause(); 
 
 </body>
 </html>
-""")
+"""
+
+# --------------------
+# 影片播放頁
+# --------------------
+def generate_video_page(
+    video_path,
+    html_folder,
+    cover_folder,
+    total_videos,
+    processed_videos,
+    ffmpeg_exe,
+    cancel_state,
+    update_progress,
+):
+
+    video_name = os.path.basename(video_path)
+    video_base = os.path.splitext(video_name)[0]
+    html_file = os.path.join(html_folder, f"{video_name}.html")
+
+    # 確保封面資料夾存在
+    os.makedirs(cover_folder, exist_ok=True)
+
+    default_cover = ensure_default_cover(cover_folder)
+
+    # 封面路徑
+    cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
+
+    if cancel_state["requested"]:
+        # 不生成封面，改用預設封面
+        cover_path = default_cover
+    else:
+        # 生成封面
+        generate_video_cover(
+            video_path,
+            cover_path,
+            ffmpeg_exe,
+            cancel_state,
+        )
+
+    rel_video_path = relative_path(html_file, video_path)
+
+    video_list_json = build_video_list(
+        os.path.dirname(video_path),
+        html_folder,
+        html_file
+    )
+
+    # ---------- 寫入 HTML ----------
+    html = build_video_page_html(
+        video_name,
+        video_base,
+        rel_video_path,
+        video_list_json,
+    )
+
+    with open(html_file, "w", encoding="utf-8") as f:
+        f.write(html)
 
     processed_videos += 1
 
