@@ -232,7 +232,6 @@ def build_video_list(folder, html_folder, html_file):
 # 影片播放頁
 # --------------------
 def generate_video_page(
-    SOURCE_ROOT,
     video_path,
     html_folder,
     cover_folder,
@@ -586,7 +585,6 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
         for vid in videos:
             vid_path = os.path.join(folder, vid)
             video_page, cover_path, processed_videos = generate_video_page(
-                SOURCE_ROOT,
                 vid_path,
                 html_folder,
                 cover_folder,
@@ -681,7 +679,6 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
         for v in videos:
             v_path = os.path.join(folder, v)
             page, cover_path, processed_videos = generate_video_page(
-                SOURCE_ROOT,
                 v_path,
                 html_folder,
                 os.path.join(viewer_folder, "covers"),
