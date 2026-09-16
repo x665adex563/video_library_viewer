@@ -228,15 +228,6 @@ def build_video_list(folder, html_folder, html_file):
 
     return json.dumps(video_list, ensure_ascii=False)
 
-# 返回上一層章節頁
-def build_parent_html_path(SOURCE_ROOT, video_path, html_folder, html_file):
-    parent_folder = os.path.dirname(video_path)
-    parent_html = folder_to_html_name(SOURCE_ROOT, parent_folder)
-    return relative_path(
-        html_file,
-        os.path.join(html_folder, parent_html)
-    )
-
 # --------------------
 # 影片播放頁
 # --------------------
@@ -277,17 +268,9 @@ def generate_video_page(
         )
 
     rel_video_path = relative_path(html_file, video_path)
-    rel_cover_path = relative_path(html_file, cover_path)
 
     video_list_json = build_video_list(
         os.path.dirname(video_path),
-        html_folder,
-        html_file
-    )
-
-    rel_parent_html = build_parent_html_path(
-        SOURCE_ROOT,
-        video_path,
         html_folder,
         html_file
     )
