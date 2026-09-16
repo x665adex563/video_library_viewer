@@ -645,8 +645,6 @@ def generate_index_html(
     update_progress,
 ):
 
-    index_file_name = f"{os.path.basename(folder)}.html"
-
     html_file = os.path.join(html_folder, index_name)
     folder_name = os.path.basename(folder)
 
