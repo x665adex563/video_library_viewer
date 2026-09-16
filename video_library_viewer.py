@@ -718,7 +718,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 
         f.write("</ul></body></html>")
 
-    return html_file, processed_videos
+    return processed_videos
 
 
 # --------------------
@@ -796,7 +796,7 @@ def main():
     index_file_name = f"{os.path.basename(folder)}.html"
 
     try:
-        final_index, processed_videos = generate_index_html(
+        processed_videos = generate_index_html(
             SOURCE_ROOT,
             folder,
             viewer_folder,
