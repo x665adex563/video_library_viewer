@@ -12,7 +12,6 @@ from tkinter import Label, Button
 from tkinter import Toplevel
 from pathlib import Path
 from cover_generator import ensure_default_cover, generate_video_cover
-import sys
 
 
 # --------------------
