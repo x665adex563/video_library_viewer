@@ -260,76 +260,67 @@ def generate_chapter_html(
     html_name = folder_to_html_name(SOURCE_ROOT, folder)
     html_file = os.path.join(html_folder, html_name)
 
-    with open(html_file, "w", encoding="utf-8") as f:
-        f.write(f"""<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>{folder_name}</title>
-<style>
-body {{ background:#000; color:#fff; font-family:sans-serif; }}
-ul {{ list-style:none; padding:20px; display:grid; grid-template-columns:repeat(7,1fr); gap:15px; justify-items:center; }}
-li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
-.video-thumb {{ width:100%; aspect-ratio:16/9; object-fit:cover; background:#000; }}
-.folder-thumb {{ width:100%; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; font-size:36px; background:#111; color:#fff; }}
-.item-name {{ margin:6px 0; font-size:14px; word-break:break-word; color:#fff; }}
-#back {{ position:fixed; top:20px; left:20px; z-index:1000; }}
-#back a {{ display:inline-block; padding:20px 20px; background:#000; color:#fff; text-decoration:none; border-radius:8px; font-size:20px; opacity:0.6; }}
-#back:hover a {{ opacity:1; background:#222; }}
-</style>
-</head>
-<body>
-""")
-        f.write('<div id="back"><a href="javascript:history.back()">← 返回</a></div>\n')
+    template_path = Path(__file__).parent / "html_templates" / "chapter_page.html"
 
-        f.write('<ul>\n')
+    with open(template_path, "r", encoding="utf-8") as f:
+        html = f.read()
 
-        # 子資料夾
-        for d in subdirs:
-            d_path = os.path.join(folder, d)
-            child_html = folder_to_html_name(SOURCE_ROOT, d_path)
+    html = html.replace("{{TITLE}}", folder_name)
 
-            processed_videos = generate_chapter_html(
-                SOURCE_ROOT,
-                d_path,
-                html_folder,
-                cover_folder,
-                total_videos,
-                processed_videos,
-                ffmpeg_exe,
-                cancel_state,
-                update_progress,
-            )
+    content = ""
 
-            f.write(f"""<li>
+    # 子資料夾
+    for d in subdirs:
+        d_path = os.path.join(folder, d)
+        child_html = folder_to_html_name(SOURCE_ROOT, d_path)
+
+        processed_videos = generate_chapter_html(
+            SOURCE_ROOT,
+            d_path,
+            html_folder,
+            cover_folder,
+            total_videos,
+            processed_videos,
+            ffmpeg_exe,
+            cancel_state,
+            update_progress,
+        )
+
+        content += f"""<li>
   <a href="{child_html}">
     <div class="folder-thumb">📁</div>
     <div class="item-name">{d}</div>
   </a>
-</li>\n""")
+</li>
+"""
 
-        # 影片
-        for vid in videos:
-            vid_path = os.path.join(folder, vid)
-            video_page, cover_path, processed_videos = generate_video_page(
-                vid_path,
-                html_folder,
-                cover_folder,
-                total_videos,
-                processed_videos,
-                ffmpeg_exe,
-                cancel_state,
-                update_progress,
-            )
+    # 影片
+    for vid in videos:
+        vid_path = os.path.join(folder, vid)
 
-            f.write(f"""<li>
+        video_page, cover_path, processed_videos = generate_video_page(
+            vid_path,
+            html_folder,
+            cover_folder,
+            total_videos,
+            processed_videos,
+            ffmpeg_exe,
+            cancel_state,
+            update_progress,
+        )
+
+        content += f"""<li>
   <a href="{relative_path(html_file, video_page)}">
     <img class="video-thumb" src="{relative_path(html_file, cover_path)}">
     <div class="item-name">{vid}</div>
   </a>
-</li>\n""")
+</li>
+"""
 
-        f.write('</ul>\n</body></html>\n')
+    html = html.replace("{{CONTENT}}", content)
+
+    with open(html_file, "w", encoding="utf-8") as f:
+        f.write(html)
 
     return processed_videos
 
