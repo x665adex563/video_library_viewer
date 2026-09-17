@@ -20,12 +20,6 @@ from cover_generator import ensure_default_cover, generate_video_cover
 VIDEO_EXTENSIONS = (".mp4", ".mkv", ".webm", ".avi", ".mov")
 
 
-# 封面圖
-# 封面圖（Level 1：固定時間點）
-COVER_CAPTURE_TIME = 80   # 全部影片一律抓 80 秒
-COVER_WIDTH = 320
-COVER_HEIGHT = 180
-
 # --------------------
 # 工具
 # --------------------
