@@ -239,6 +239,18 @@ def generate_video_page(
 
     return html_file, cover_path, processed_videos
 
+def build_index_page_html(
+    folder_name,
+):
+    template_path = Path(__file__).parent / "html_templates" / "index_page.html"
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    html = html.replace("{folder_name}", folder_name)
+
+    return html
+
 def build_chapter_page_html(
     folder_name,
     content,
@@ -359,12 +371,9 @@ def generate_index_html(
 
     videos = get_videos(folder)
 
-    template_path = Path(__file__).parent / "html_templates" / "index_page.html"
-
-    with open(template_path, "r", encoding="utf-8") as f:
-        html = f.read()
-
-    html = html.replace("{folder_name}", folder_name)
+    html = build_index_page_html(
+        folder_name,
+    )
 
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(html)
