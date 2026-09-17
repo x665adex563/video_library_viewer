@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{TITLE}}</title>
+<style>
+body { background:#000; color:#fff; font-family:sans-serif; }
+ul { list-style:none; padding:20px; display:grid; grid-template-columns:repeat(7,1fr); gap:15px; justify-items:center; }
+li { background:#111; border-radius:8px; overflow:hidden; text-align:center; }
+.video-thumb { width:100%; aspect-ratio:16/9; object-fit:cover; background:#000; }
+.folder-thumb { width:100%; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; font-size:36px; background:#111; color:#fff; }
+.item-name { margin:6px 0; font-size:14px; word-break:break-word; color:#fff; }
+#back { position:fixed; top:20px; left:20px; z-index:1000; }
+#back a { display:inline-block; padding:20px 20px; background:#000; color:#fff; text-decoration:none; border-radius:8px; font-size:20px; opacity:0.6; }
+#back:hover a { opacity:1; background:#222; }
+</style>
+</head>
+<body>
+
+<div id="back"><a href="javascript:history.back()">← 返回</a></div>
+
+<ul>
+{{CONTENT}}
+</ul>
+
+</body>
+</html>
