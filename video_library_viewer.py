@@ -528,7 +528,7 @@ def generate_chapter_html(
     SOURCE_ROOT,
     folder,
     html_folder,
-    viewer_folder,
+    cover_folder,
     total_videos,
     processed_videos,
     ffmpeg_exe,
@@ -542,9 +542,6 @@ def generate_chapter_html(
     folder_name = os.path.basename(folder)
     html_name = folder_to_html_name(SOURCE_ROOT, folder)
     html_file = os.path.join(html_folder, html_name)
-
-    cover_folder = os.path.join(viewer_folder, "covers")
-    os.makedirs(cover_folder, exist_ok=True)
 
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(f"""<!DOCTYPE html>
@@ -579,7 +576,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 SOURCE_ROOT,
                 d_path,
                 html_folder,
-                viewer_folder,
+                cover_folder,
                 total_videos,
                 processed_videos,
                 ffmpeg_exe,
@@ -626,7 +623,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
 def generate_index_html(
     SOURCE_ROOT,
     folder,
-    viewer_folder,
+    cover_folder,
     html_folder,
     index_name,
     total_videos,
@@ -679,7 +676,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
                 SOURCE_ROOT,
                 d_path,
                 html_folder,
-                viewer_folder,
+                cover_folder,
                 total_videos,
                 processed_videos,
                 ffmpeg_exe,
@@ -693,7 +690,7 @@ li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
             page, cover_path, processed_videos = generate_video_page(
                 v_path,
                 html_folder,
-                os.path.join(viewer_folder, "covers"),
+                cover_folder,
                 total_videos,
                 processed_videos,
                 ffmpeg_exe,
@@ -791,7 +788,7 @@ def main():
         processed_videos = generate_index_html(
             SOURCE_ROOT,
             folder,
-            viewer_folder,
+            cover_folder,
             html_folder,
             index_file_name,
             total_videos,
