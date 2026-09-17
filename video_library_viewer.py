@@ -72,6 +72,9 @@ def folder_to_html_name(SOURCE_ROOT, folder_path):
     safe = rel.replace(os.sep, "__")
     return f"{safe}.html"
 
+def video_to_html_name(video_name):
+    return f"{video_name}.html"
+
 # --------------------
 # 首頁函式
 # --------------------
@@ -150,7 +153,7 @@ def build_video_list(folder, html_folder, html_file):
     video_list = []
     for vid in folder_videos:
         vid_base = os.path.splitext(vid)[0]
-        vid_html = os.path.join(html_folder, f"{vid}.html")
+        vid_html = os.path.join(html_folder, video_to_html_name(vid))
         video_list.append({
             "name": vid_base,
             "html": relative_path(html_file, vid_html)
@@ -192,7 +195,7 @@ def generate_video_page(
 
     video_name = os.path.basename(video_path)
     video_base = os.path.splitext(video_name)[0]
-    html_file = os.path.join(html_folder, f"{video_name}.html")
+    html_file = os.path.join(html_folder, video_to_html_name(video_name))
 
     default_cover = ensure_default_cover(cover_folder)
 
