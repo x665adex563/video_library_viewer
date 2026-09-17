@@ -165,7 +165,7 @@ def build_video_page_html(
     rel_video_path,
     video_list_json,
 ):
-    template_path = Path(__file__).parent / "video_page.html"
+    template_path = Path(__file__).parent / "html_templates" / "video_page.html"
 
     with open(template_path, "r", encoding="utf-8") as f:
         html = f.read()
@@ -357,7 +357,7 @@ def generate_index_html(
 
     videos = get_videos(folder)
 
-    template_path = Path(__file__).parent / "index_page.html"
+    template_path = Path(__file__).parent / "html_templates" / "index_page.html"
 
     with open(template_path, "r", encoding="utf-8") as f:
         html = f.read()
