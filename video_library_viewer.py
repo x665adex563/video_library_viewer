@@ -357,24 +357,15 @@ def generate_index_html(
 
     videos = get_videos(folder)
 
+    template_path = Path(__file__).parent / "index_page.html"
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    html = html.replace("{folder_name}", folder_name)
+
     with open(html_file, "w", encoding="utf-8") as f:
-        f.write(f"""<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>{folder_name}</title>
-<style>
-body {{ background:#000; color:#fff; font-family:sans-serif; }}
-ul {{ list-style:none; padding:20px; display:grid; grid-template-columns:repeat(7,1fr); gap:15px; justify-items:center; }}
-li {{ background:#111; border-radius:8px; overflow:hidden; text-align:center; }}
-.video-thumb {{ width:100%; aspect-ratio:16/9; object-fit:cover; background:#000; }}
-.folder-thumb {{ width:100%; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; font-size:36px; background:#111; color:#fff; }}
-.item-name {{ margin:6px 0; font-size:14px; color:#fff; }}
-</style>
-</head>
-<body>
-<ul>
-""")
+        f.write(html)
 
         # 子資料夾
         for d in subdirs:
