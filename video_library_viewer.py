@@ -475,9 +475,6 @@ def generate_video_page(
     video_base = os.path.splitext(video_name)[0]
     html_file = os.path.join(html_folder, f"{video_name}.html")
 
-    # 確保封面資料夾存在
-    os.makedirs(cover_folder, exist_ok=True)
-
     default_cover = ensure_default_cover(cover_folder)
 
     # 封面路徑
