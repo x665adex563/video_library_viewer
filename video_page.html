@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{video_name}</title>
+<style>
+body { margin:0; background:#000; color:#fff; font-family:sans-serif; height:100vh; overflow:hidden; }
+#back { position:fixed; top:20px; left:20px; z-index:2000; }
+#back a { padding:12px 20px; background:#000; color:#fff; text-decoration:none; border-radius:8px; font-size:18px; opacity:0.7; }
+#back a:hover { opacity:1; background:#222; }
+#player-wrapper { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
+#player-wrapper.fake-fullscreen { position:fixed; inset:0; background:black; z-index:9999; display:flex; justify-content:center; align-items:center; }
+#player-wrapper.fake-fullscreen video { width: auto; height: 100%; max-width: 100vw; max-height: 100vh; object-fit: contain; z-index: 1; }
+#player-wrapper.fake-fullscreen #controls { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); width:90vw; opacity:0; transition:opacity 0.3s; z-index:10; }
+#player-wrapper.fake-fullscreen #video-title { display: none; }
+video { max-width:90vw; max-height:80vh; cursor:pointer; }
+#controls { position:relative; width:90vw; margin-top:10px; display:flex; align-items:center; gap:10px; z-index:10; }
+#progress { border:none; outline:none; box-shadow:none; width:100%; appearance:none; -webkit-appearance:none; background:transparent; cursor:pointer; }
+#progress::-webkit-slider-runnable-track { height:15px; border-radius:8px; background: linear-gradient(to right, #4aa3ff 0%, #4aa3ff var(--played,0%), #444 var(--played,0%), #444 100%); }
+#progress::-webkit-slider-thumb { -webkit-appearance:none; height:18px; width:18px; border-radius:50%; background:#fff; margin-top:-1.5px; cursor:pointer; }
+#volume-container { display:flex; align-items:center; }
+#volume-slider { width:80px; }
+#fullscreen-btn { font-size:20px; cursor:pointer; }
+#video-title { margin-top:10px; text-align:center; }
+#video-list {
+    position:fixed;
+    top:0;
+    right:0;
+    width:12vw;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    overflow-y:auto;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    opacity:0;
+    transition:opacity 0.3s;
+    z-index:10000;
+}
+#video-list a {
+    color:#fff;
+    text-decoration:none;
+    padding:6px 8px;
+    border-radius:4px;
+    background:#222;
+    opacity:0.8;
+}
+#video-list a:hover { background:#4aa3ff; }
+</style>
+</head>
+<body>
+
+<!-- 返回上一層資料夾 -->
+<div id="back"><a href="javascript:history.back()">← 返回</a></div>
+
+<div id="player-wrapper">
+  <video id="video" src="{rel_video_path}" autoplay preload="metadata"></video>
+  <div id="video-title">{video_name}</div>
+  <div id="controls">
+    <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
+    <input type="range" id="progress" min="0" value="0">
+    <div id="volume-container">
+      <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+      <span id="volume-icon">🔊</span>
+    </div>
+    <span id="fullscreen-btn">⛶</span>
+  </div>
+</div>
+
+<div id="video-list"></div>
+
+<script>
+const video = document.getElementById("video");
+const progress = document.getElementById("progress");
+const currentTimeEl = document.getElementById("current-time");
+const totalTimeEl = document.getElementById("total-time");
+const volumeSlider = document.getElementById("volume-slider");
+const volumeIcon = document.getElementById("volume-icon");
+const fullscreenBtn = document.getElementById("fullscreen-btn");
+const playerWrapper = document.getElementById("player-wrapper");
+const videoList = {video_list_json};
+const currentVideo = "{video_base}";
+const listDiv = document.getElementById("video-list");
+let controlsTimer=null;
+let isFakeFullscreen=false;
+let mouseTimer = null;
+
+function hideCursor() {
+    if (isFakeFullscreen) {
+        video.style.cursor = "none";
+        document.body.style.cursor = "none";
+    }
+}
+
+function showCursor() {
+    video.style.cursor = "default";
+    playerWrapper.style.cursor = "default";
+    if (mouseTimer) clearTimeout(mouseTimer);
+    if (isFakeFullscreen) {
+        mouseTimer = setTimeout(hideCursor, 500); // 500ms 後隱藏滑鼠
+    }
+}
+
+// 監聽滑鼠移動
+document.addEventListener("mousemove", (e) => {
+    if (!isFakeFullscreen) return;
+    showCursor();
+    // 控制列顯示
+    showControls(500);
+});
+
+videoList.forEach(v => {
+    if (v.name === currentVideo) return;
+    const a = document.createElement("a");
+    a.href = v.html;
+    a.textContent = v.name;
+    listDiv.appendChild(a);
+});
+
+// 滑鼠靠右顯示
+document.addEventListener("mousemove", e => {
+    listDiv.style.opacity = (e.clientX > window.innerWidth * 0.88) ? 1 : 0;
+});
+
+// 滑鼠靠右顯示清單（全螢幕專用）
+document.addEventListener("mousemove", e => {
+    if (!isFakeFullscreen) return; // 只在全螢幕
+
+    if (e.clientX > window.innerWidth * 0.88) {
+        listDiv.style.opacity = "1";
+        listDiv.style.pointerEvents = "auto"; // 可以點擊
+    } else {
+        listDiv.style.opacity = "0";
+        listDiv.style.pointerEvents = "none"; // 不可點擊
+    }
+
+    // 同時顯示控制列
+    showControls(500);
+});
+
+function showControls(duration=500){
+    const controls=document.getElementById("controls");
+    controls.style.opacity=1;
+    if(controlsTimer) clearTimeout(controlsTimer);
+    controlsTimer=setTimeout(()=>{ if(playerWrapper.classList.contains("fake-fullscreen")) controls.style.opacity=0; }, duration);
+}
+function hideControls(){ document.getElementById("controls").style.opacity=0; }
+function formatTime(sec){ const h = Math.floor(sec / 3600); const m = Math.floor((sec % 3600) / 60); const s = Math.floor(sec % 60); return h>0?`${h}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`:`${m}:${s.toString().padStart(2,"0")}`; }
+function updateVolumeUI(){ volumeSlider.value=video.volume; volumeIcon.textContent=video.volume===0?"🔇":"🔊"; showControls(500); }
+
+video.addEventListener("loadedmetadata", ()=>{ totalTimeEl.textContent=formatTime(video.duration); progress.max=video.duration; });
+video.addEventListener("timeupdate", ()=>{ currentTimeEl.textContent=formatTime(video.currentTime); progress.value=video.currentTime; progress.style.setProperty("--played",(video.currentTime/video.duration*100)+"%"); });
+progress.addEventListener("input", ()=>{ video.currentTime=parseFloat(progress.value); progress.style.setProperty("--played",(video.currentTime/video.duration*100)+"%"); });
+
+volumeSlider.addEventListener("input", ()=>{ video.volume=parseFloat(volumeSlider.value); updateVolumeUI(); });
+video.addEventListener("wheel", e=>{ e.preventDefault(); const delta=e.deltaY<0?0.05:-0.05; video.volume=Math.min(1,Math.max(0,video.volume+delta)); updateVolumeUI(); }, {passive:false});
+video.setAttribute("tabindex", "-1");
+
+function toggleFullscreen(){
+    if(!document.fullscreenElement){
+        document.documentElement.requestFullscreen();
+        playerWrapper.classList.add("fake-fullscreen");
+        isFakeFullscreen=true;
+        showControls(500);
+    } else {
+        document.exitFullscreen();
+        playerWrapper.classList.remove("fake-fullscreen");
+        isFakeFullscreen=false;
+        hideControls();
+    }
+}
+fullscreenBtn.addEventListener("click", toggleFullscreen);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && isFakeFullscreen) toggleFullscreen(); });
+document.addEventListener("mousemove", ()=>{ showControls(); });
+document.addEventListener("keydown", e => {
+    const blockKeys = ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"," "];
+
+    if (blockKeys.includes(e.key)) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    switch (e.key) {
+        case " ":
+            video.paused ? video.play() : video.pause();
+            showControls(500);
+            break;
+
+        case "ArrowLeft":
+            video.currentTime = Math.max(0, video.currentTime - 3);
+            showControls(500);
+            break;
+
+        case "ArrowRight":
+            video.currentTime = Math.min(video.duration, video.currentTime + 3);
+            showControls(500);
+            break;
+
+        case "ArrowUp":
+            video.volume = Math.min(1, video.volume + 0.05);
+            updateVolumeUI();
+            break;
+
+        case "ArrowDown":
+            video.volume = Math.max(0, video.volume - 0.05);
+            updateVolumeUI();
+            break;
+
+        case "Enter":
+            toggleFullscreen();
+            break;
+    }
+});
+
+video.addEventListener("click", ()=>{ video.paused?video.play():video.pause(); });
+</script>
+
+</body>
+</html>
