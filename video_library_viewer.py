@@ -239,6 +239,19 @@ def generate_video_page(
 
     return html_file, cover_path, processed_videos
 
+def build_chapter_page_html(
+    folder_name,
+    content,
+):
+    template_path = Path(__file__).parent / "html_templates" / "chapter_page.html"
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    html = html.replace("{{TITLE}}", folder_name)
+    html = html.replace("{{CONTENT}}", content)
+
+    return html
 
 # --------------------
 # 章節頁（使用封面圖）
@@ -261,13 +274,6 @@ def generate_chapter_html(
     folder_name = os.path.basename(folder)
     html_name = folder_to_html_name(SOURCE_ROOT, folder)
     html_file = os.path.join(html_folder, html_name)
-
-    template_path = Path(__file__).parent / "html_templates" / "chapter_page.html"
-
-    with open(template_path, "r", encoding="utf-8") as f:
-        html = f.read()
-
-    html = html.replace("{{TITLE}}", folder_name)
 
     content = ""
 
@@ -319,7 +325,10 @@ def generate_chapter_html(
 </li>
 """
 
-    html = html.replace("{{CONTENT}}", content)
+    html = build_chapter_page_html(
+        folder_name,
+        content,
+    )
 
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(html)
