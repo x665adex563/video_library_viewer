@@ -1,12 +1,12 @@
 import os
 import sys
 from tkinter import Tk, filedialog, messagebox
-
+from cover_generator import scan_missing_covers
 from video_library_viewer import (
-    scan_missing_covers,
     count_all_videos,
     create_progress_window,
     generate_index_html,
+    get_all_videos,
     open_index,
 )
 
@@ -43,7 +43,8 @@ def main():
     cover_folder = os.path.join(viewer_folder, "covers")
     os.makedirs(cover_folder, exist_ok=True)
 
-    missing_covers = scan_missing_covers(SOURCE_ROOT, cover_folder)
+    videos = get_all_videos(SOURCE_ROOT)
+    missing_covers = scan_missing_covers(videos, cover_folder)
 
     if missing_covers:
         answer = messagebox.askyesno(
