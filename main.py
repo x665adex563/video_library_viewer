@@ -2,7 +2,7 @@ import os
 import sys
 from tkinter import Tk, filedialog, messagebox
 from cover_generator import scan_missing_covers
-from video_library_viewer import (
+from video_viewer import (
     create_progress_window,
     generate_index_html,
     get_all_videos,
