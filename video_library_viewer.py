@@ -87,17 +87,6 @@ def open_index(html_folder, index_file_name):
         webbrowser.open(url)
 
 # --------------------
-# 計算要補封面圖的影片總數
-# --------------------
-def count_all_videos(SOURCE_ROOT):
-    count = 0
-    for root, _, files in os.walk(SOURCE_ROOT):
-        for f in files:
-            if f.lower().endswith(VIDEO_EXTENSIONS):
-                count += 1
-    return count
-
-# --------------------
 # 生成封面圖時的進度提示窗
 # --------------------
 def create_progress_window(root, total, cancel_state):
