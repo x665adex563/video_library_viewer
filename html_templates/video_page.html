@@ -4,55 +4,187 @@
 <meta charset="UTF-8">
 <title>{video_name}</title>
 <style>
-body { margin:0; background:#000; color:#fff; font-family:sans-serif; height:100vh; overflow:hidden; }
-#back { position:fixed; top:20px; left:20px; z-index:2000; }
-#back a { padding:12px 20px; background:#000; color:#fff; text-decoration:none; border-radius:8px; font-size:18px; opacity:0.7; }
-#back a:hover { opacity:1; background:#222; }
-#player-wrapper { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
-#player-wrapper.fake-fullscreen { position:fixed; inset:0; background:black; z-index:9999; display:flex; justify-content:center; align-items:center; }
-#player-wrapper.fake-fullscreen video { width: auto; height: 100%; max-width: 100vw; max-height: 100vh; object-fit: contain; z-index: 1; }
-#player-wrapper.fake-fullscreen #controls { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); width:90vw; opacity:0; transition:opacity 0.3s; z-index:10; }
-#player-wrapper.fake-fullscreen #video-title { display: none; }
-video { max-width:90vw; max-height:80vh; cursor:pointer; }
-#controls { position:relative; width:90vw; margin-top:10px; display:flex; align-items:center; gap:10px; z-index:10; }
-#progress { border:none; outline:none; box-shadow:none; width:100%; appearance:none; -webkit-appearance:none; background:transparent; cursor:pointer; }
-#progress::-webkit-slider-runnable-track { height:15px; border-radius:8px; background: linear-gradient(to right, #4aa3ff 0%, #4aa3ff var(--played,0%), #444 var(--played,0%), #444 100%); }
-#progress::-webkit-slider-thumb { -webkit-appearance:none; height:18px; width:18px; border-radius:50%; background:#fff; margin-top:-1.5px; cursor:pointer; }
-#volume-container { display:flex; align-items:center; }
-#volume-slider { width:80px; }
-#fullscreen-btn { font-size:20px; cursor:pointer; }
-#video-title { margin-top:10px; text-align:center; }
+body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#back {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 2000;
+}
+
+#back a {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 50px 50px;
+    background: #000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 20px;
+    opacity: 0.1;
+    transition: opacity 0.25s ease, background 0.25s ease;
+}
+
+#back:hover a {
+    opacity: 1;
+    background: #222;
+}
+
+#player-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+#player-wrapper.fake-fullscreen {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#player-wrapper.fake-fullscreen video {
+    width: auto;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    object-fit: contain;
+    z-index: 1;
+}
+
+#player-wrapper.fake-fullscreen #controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 10;
+}
+
+#player-wrapper.fake-fullscreen #video-title {
+    display: none;
+}
+
+video {
+    max-width: 90vw;
+    max-height: 80vh;
+    cursor: pointer;
+}
+
+#controls {
+    position: relative;
+    width: 90vw;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+}
+
+#progress {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+#progress::-webkit-slider-runnable-track {
+    height: 15px;
+    border-radius: 8px;
+    background: linear-gradient(
+        to right,
+        #4aa3ff 0%,
+        #4aa3ff var(--played, 0%),
+        #444 var(--played, 0%),
+        #444 100%
+    );
+}
+
+#progress::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #fff;
+    margin-top: -1.5px;
+    cursor: pointer;
+}
+
+#volume-container {
+    display: flex;
+    align-items: center;
+}
+
+#volume-slider {
+    width: 80px;
+}
+
+#fullscreen-btn {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#video-title {
+    margin-top: 10px;
+    text-align: center;
+}
+
 #video-list {
-    position:fixed;
-    top:0;
-    right:0;
-    width:12vw;
-    height:100%;
-    background:rgba(0,0,0,0.5);
-    overflow-y:auto;
-    padding:10px;
-    display:flex;
-    flex-direction:column;
-    gap:5px;
-    opacity:0;
-    transition:opacity 0.3s;
-    z-index:10000;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 12vw;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 10000;
 }
+
 #video-list a {
-    color:#fff;
-    text-decoration:none;
-    padding:6px 8px;
-    border-radius:4px;
-    background:#222;
-    opacity:0.8;
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 8px;
+    border-radius: 4px;
+    background: #222;
+    opacity: 0.8;
 }
-#video-list a:hover { background:#4aa3ff; }
+
+#video-list a:hover {
+    background: #4aa3ff;
+}
 </style>
 </head>
 <body>
 
 <!-- 返回上一層資料夾 -->
-<div id="back"><a href="javascript:history.back()">← 返回</a></div>
+<div id="back"><a href="javascript:history.back()">←</a></div>
 
 <div id="player-wrapper">
   <video id="video" src="{rel_video_path}" autoplay preload="metadata"></video>

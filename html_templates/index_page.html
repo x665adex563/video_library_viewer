@@ -4,13 +4,152 @@
 <meta charset="UTF-8">
 <title>{folder_name}</title>
 <style>
-body { background:#000; color:#fff; font-family:sans-serif; }
-ul { list-style:none; padding:20px; display:grid; grid-template-columns:repeat(7,1fr); gap:15px; justify-items:center; }
-li { background:#111; border-radius:8px; overflow:hidden; text-align:center; }
-.video-thumb { width:100%; aspect-ratio:16/9; object-fit:cover; background:#000; }
-.folder-thumb { width:100%; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; font-size:36px; background:#111; color:#fff; }
-.item-name { margin:6px 0; font-size:14px; color:#fff; }
+body {
+    background: #000;
+    color: #fff;
+    font-family: sans-serif;
+}
+
+ul {
+    list-style: none;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 15px;
+    justify-items: center;
+}
+
+li {
+    background: #111;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.video-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    background: #000;
+}
+
+.folder-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    background: #111;
+    color: #fff;
+}
+
+#search-container {
+    position: relative;
+    width: 280px;
+    margin: 100px auto 12px auto;
+}
+
+#search {
+    display: block;
+    width: 280px;
+    padding: 8px 12px;
+    background: #fff;
+    color: #000;
+    border-radius: 6px;
+    border: 1px solid #444;
+}
+
+#search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    background: #222;
+    color: #fff;
+    z-index: 1000;
+}
+
+#search-suggestions div {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+#search-suggestions div:hover {
+    background: #444;
+}
+
+.item-name {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #fff;
+}
 </style>
 </head>
+
 <body>
+
+<div id="search-container">
+    <input
+        id="search"
+        type="text"
+        placeholder="搜尋影片"
+        onkeydown="search(event)"
+    >
+    <div id="search-suggestions"></div>
+</div>
+
 <ul>
+
+<script>
+const searchInput = document.getElementById("search");
+const suggestions = document.getElementById("search-suggestions");
+const allVideos = {{ALL_VIDEOS}};
+
+searchInput.addEventListener("input", () => {
+    const value = searchInput.value.trim().toLowerCase();
+
+    suggestions.innerHTML = "";
+
+    if (!value) {
+        return;
+    }
+
+    const results = allVideos.filter(video =>
+        video.name.toLowerCase().includes(value)
+    );
+
+    for (const video of results) {
+        const div = document.createElement("div");
+
+        div.textContent = video.name;
+
+        div.onclick = () => {
+            searchInput.value = video.name;
+            sessionStorage.setItem("videoSearch", video.name);
+            window.location.href = "search.html";
+        };
+
+        suggestions.appendChild(div);
+    }
+});
+
+function search(event) {
+    if (event.key !== "Enter") {
+        return;
+    }
+
+    const value = document.getElementById("search").value.trim();
+
+    if (!value) {
+        return;
+    }
+
+    sessionStorage.setItem("videoSearch", value);
+    window.location.href = "search.html";
+}
+</script>
+</body>
+</html>
