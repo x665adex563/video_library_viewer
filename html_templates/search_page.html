@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{TITLE}}</title>
+
+<style>
+body {
+    background:#000;
+    color:#fff;
+    font-family:sans-serif;
+}
+
+a,a:visited,a:hover,a:active {
+    color:#fff;
+    text-decoration:none;
+}
+
+.item-name {
+    margin-top:6px;
+    font-size:14px;
+    text-align:center;
+    word-break:break-word;
+}
+
+#search {
+    display: block;
+    margin: 100px auto 12px auto;
+    width: 280px;
+    padding: 8px 12px;
+    background: #fff;
+    color: #000;
+    border-radius: 6px;
+    border: 1px solid #444;
+}
+
+ul {
+    list-style: none;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 15px;
+    justify-items: center;
+}
+
+li {
+    background: #111;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.video-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    background: #000;
+}
+
+#home {
+    position:fixed;
+    top:20px;
+    left:20px;
+    z-index:200;
+}
+
+#home a {
+    display:block;
+    padding:50px 50px;
+    background:#000;
+    color:#fff;
+    border-radius:8px;
+    font-size:20px;
+    opacity:0.4;
+    text-decoration:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="home">
+  <a href="{{HOME_PAGE}}">🏠</a>
+</div>
+
+<input
+    id="search"
+    type="text"
+    placeholder="搜尋影片"
+    onkeydown="search(event)"
+>
+
+<ul>
+{{RESULTS}}
+</ul>
+
+<script>
+function search(event) {
+    if (event.key !== "Enter") {
+        return;
+    }
+
+    const value = document.getElementById("search").value.trim();
+
+    if (!value) {
+        return;
+    }
+
+    sessionStorage.setItem("videoSearch", value);
+    window.location.href = "search.html";
+}
+
+const allVideos = {{ALL_VIDEOS}};
+const searchValue = sessionStorage.getItem("videoSearch") || "";
+
+const results = allVideos.filter(video =>
+    video.name.toLowerCase().includes(searchValue.toLowerCase())
+);
+
+const list = document.querySelector("ul");
+
+for (const video of results) {
+    list.innerHTML += `
+        <li>
+            <a href="${video.link}">
+                <img class="video-thumb" src="${video.thumb}">
+                <div class="item-name">${video.name}</div>
+            </a>
+        </li>
+    `;
+}
+</script>
+
+</body>
+</html>

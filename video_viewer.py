@@ -223,15 +223,54 @@ def generate_video_page(
 
     return html_file, cover_path, processed_videos
 
-def build_index_page_html(
-    folder_name,
-):
+def build_index_page_html(folder_name, video_search_data):
     template_path = Path(__file__).parent / "html_templates" / "index_page.html"
 
     with open(template_path, "r", encoding="utf-8") as f:
         html = f.read()
 
     html = html.replace("{folder_name}", folder_name)
+    html = html.replace("{{ALL_VIDEOS}}", video_search_data)
+
+    return html
+
+def build_video_search_data(videos, html_folder, cover_folder, search_file):
+    search_data = []
+
+    for video_path in videos:
+        video_name = os.path.basename(video_path)
+        video_page = os.path.join(
+            html_folder,
+            video_to_html_name(video_name),
+        )
+        cover_path = video_to_cover_path(
+            video_path,
+            cover_folder,
+        )
+
+        search_data.append({
+            "name": os.path.splitext(video_name)[0],
+            "link": relative_path(search_file, video_page),
+            "thumb": relative_path(search_file, cover_path),
+        })
+
+    return json.dumps(search_data, ensure_ascii=False)
+
+def build_search_page_html(
+    title,
+    home_page,
+    all_videos,
+    results,
+):
+    template_path = Path(__file__).parent / "html_templates" / "search_page.html"
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    html = html.replace("{{TITLE}}", title)
+    html = html.replace("{{HOME_PAGE}}", home_page)
+    html = html.replace("{{ALL_VIDEOS}}", all_videos)
+    html = html.replace("{{RESULTS}}", results)
 
     return html
 
@@ -256,6 +295,7 @@ def build_folder_list_item(child_html, folder_name):
 def build_chapter_page_html(
     folder_name,
     content,
+    video_search_data,
 ):
     template_path = Path(__file__).parent / "html_templates" / "chapter_page.html"
 
@@ -264,6 +304,7 @@ def build_chapter_page_html(
 
     html = html.replace("{{TITLE}}", folder_name)
     html = html.replace("{{CONTENT}}", content)
+    html = html.replace("{{ALL_VIDEOS}}", video_search_data)
 
     return html
 
@@ -273,6 +314,7 @@ def build_chapter_page_html(
 def generate_chapter_html(
     SOURCE_ROOT,
     folder,
+    all_videos,
     html_folder,
     cover_folder,
     total_videos,
@@ -289,6 +331,13 @@ def generate_chapter_html(
     html_name = folder_to_html_name(SOURCE_ROOT, folder)
     html_file = os.path.join(html_folder, html_name)
 
+    video_search_data = build_video_search_data(
+        all_videos,
+        html_folder,
+        cover_folder,
+        html_file,
+    )
+
     content = ""
 
     # 子資料夾
@@ -299,6 +348,7 @@ def generate_chapter_html(
         processed_videos = generate_chapter_html(
             SOURCE_ROOT,
             d_path,
+            all_videos,
             html_folder,
             cover_folder,
             total_videos,
@@ -336,6 +386,7 @@ def generate_chapter_html(
     html = build_chapter_page_html(
         folder_name,
         content,
+        video_search_data,
     )
 
     with open(html_file, "w", encoding="utf-8") as f:
@@ -350,6 +401,7 @@ def generate_chapter_html(
 def generate_index_html(
     SOURCE_ROOT,
     folder,
+    all_videos,
     cover_folder,
     html_folder,
     index_name,
@@ -367,8 +419,28 @@ def generate_index_html(
 
     videos = get_videos(folder)
 
+    search_file = os.path.join(html_folder, "search.html")
+
+    video_search_data = build_video_search_data(
+        all_videos,
+        html_folder,
+        cover_folder,
+        search_file,
+    )
+
+    search_html = build_search_page_html(
+        "搜尋結果",
+        index_name,
+        video_search_data,
+        "",
+    )
+
+    with open(search_file, "w", encoding="utf-8") as f:
+        f.write(search_html)
+
     html = build_index_page_html(
         folder_name,
+        video_search_data,
     )
 
     with open(html_file, "w", encoding="utf-8") as f:
@@ -385,6 +457,7 @@ def generate_index_html(
             processed_videos = generate_chapter_html(
                 SOURCE_ROOT,
                 d_path,
+                all_videos,
                 html_folder,
                 cover_folder,
                 total_videos,

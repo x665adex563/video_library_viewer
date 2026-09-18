@@ -85,6 +85,7 @@ def main():
         processed_videos = generate_index_html(
             SOURCE_ROOT,
             folder,
+            videos,
             cover_folder,
             html_folder,
             index_file_name,
