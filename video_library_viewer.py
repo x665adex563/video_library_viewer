@@ -2,12 +2,10 @@
 
 import os
 import webbrowser
-from tkinter import Tk, filedialog
 import re
 import subprocess
 from urllib.parse import quote
 import json
-from tkinter import messagebox
 from tkinter import Label, Button
 from tkinter import Toplevel
 from pathlib import Path
