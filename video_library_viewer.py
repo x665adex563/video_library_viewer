@@ -234,6 +234,24 @@ def build_index_page_html(
 
     return html
 
+def build_video_list_item(html_file, page, cover_path, video_name):
+    return f"""<li>
+  <a href="{relative_path(html_file, page)}">
+    <img class="video-thumb" src="{relative_path(html_file, cover_path)}">
+    <div class="item-name">{video_name}</div>
+  </a>
+</li>
+"""
+
+def build_folder_list_item(child_html, folder_name):
+    return f"""<li>
+  <a href="{child_html}">
+    <div class="folder-thumb">📁</div>
+    <div class="item-name">{folder_name}</div>
+  </a>
+</li>
+"""
+
 def build_chapter_page_html(
     folder_name,
     content,
@@ -289,13 +307,7 @@ def generate_chapter_html(
             update_progress,
         )
 
-        content += f"""<li>
-  <a href="{child_html}">
-    <div class="folder-thumb">📁</div>
-    <div class="item-name">{d}</div>
-  </a>
-</li>
-"""
+        content += build_folder_list_item(child_html, d)
 
     # 影片
     for vid in videos:
@@ -312,13 +324,12 @@ def generate_chapter_html(
             update_progress,
         )
 
-        content += f"""<li>
-  <a href="{relative_path(html_file, video_page)}">
-    <img class="video-thumb" src="{relative_path(html_file, cover_path)}">
-    <div class="item-name">{vid}</div>
-  </a>
-</li>
-"""
+        content += build_video_list_item(
+            html_file,
+            video_page,
+            cover_path,
+            vid,
+        )
 
     html = build_chapter_page_html(
         folder_name,
@@ -366,12 +377,7 @@ def generate_index_html(
             d_path = os.path.join(folder, d)
             child_html = folder_to_html_name(SOURCE_ROOT, d_path)
 
-            f.write(f"""<li>
-  <a href="{child_html}">
-    <div class="folder-thumb">📁</div>
-    <div class="item-name">{d}</div>
-  </a>
-</li>\n""")
+            f.write(build_folder_list_item(child_html, d))
 
             # 生成章節 HTML
             processed_videos = generate_chapter_html(
@@ -400,12 +406,14 @@ def generate_index_html(
                 update_progress,
             )
 
-            f.write(f"""<li>
-  <a href="{relative_path(html_file, page)}">
-    <img class="video-thumb" src="{relative_path(html_file, cover_path)}">
-    <div class="item-name">{v}</div>
-  </a>
-</li>\n""")
+            f.write(
+                build_video_list_item(
+                    html_file,
+                    page,
+                    cover_path,
+                    v,
+                )
+            )
 
         f.write("</ul></body></html>")
 
