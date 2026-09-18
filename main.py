@@ -3,7 +3,6 @@ import sys
 from tkinter import Tk, filedialog, messagebox
 from cover_generator import scan_missing_covers
 from video_library_viewer import (
-    count_all_videos,
     create_progress_window,
     generate_index_html,
     get_all_videos,
@@ -56,7 +55,7 @@ def main():
             allow_generate_cover = False
 
     # 生成首頁前再判斷是否要顯示進度視窗
-    total_videos = count_all_videos(SOURCE_ROOT)
+    total_videos = len(videos)
     processed_videos = 0
 
 
