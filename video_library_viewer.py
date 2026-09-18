@@ -9,7 +9,11 @@ import json
 from tkinter import Label, Button
 from tkinter import Toplevel
 from pathlib import Path
-from cover_generator import ensure_default_cover, generate_video_cover
+from cover_generator import (
+    ensure_default_cover,
+    generate_video_cover,
+    video_to_cover_path,
+)
 
 
 # --------------------
@@ -180,7 +184,7 @@ def generate_video_page(
     default_cover = ensure_default_cover(cover_folder)
 
     # 封面路徑
-    cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
+    cover_path = video_to_cover_path(video_path, cover_folder)
 
     if cancel_state["requested"]:
         # 不生成封面，改用預設封面

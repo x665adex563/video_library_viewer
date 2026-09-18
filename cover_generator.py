@@ -15,8 +15,7 @@ def scan_missing_covers(videos, cover_folder):
     missing = []
 
     for video_path in videos:
-        video_name = os.path.basename(video_path)
-        cover_path = os.path.join(cover_folder, f"{video_name}.jpg")
+        cover_path = video_to_cover_path(video_path, cover_folder)
 
         if not os.path.exists(cover_path):
             missing.append(video_path)
@@ -60,6 +59,10 @@ def generate_video_cover(
         stderr=subprocess.DEVNULL,
         creationflags=subprocess.CREATE_NO_WINDOW
     )
+
+def video_to_cover_path(video_path, cover_folder):
+    video_name = os.path.basename(video_path)
+    return os.path.join(cover_folder, f"{video_name}.jpg")
 
 def ensure_default_cover(cover_folder):
     # 預設封面（黑底）
