@@ -130,11 +130,9 @@ def find_chrome_path():
 # --------------------
 # 右側清單
 # --------------------
-def build_video_list(folder, html_folder, html_file):
-    folder_videos = get_videos(folder)
-
+def build_video_list(videos, html_folder, html_file):
     video_list = []
-    for vid in folder_videos:
+    for vid in videos:
         vid_base = os.path.splitext(vid)[0]
         vid_html = os.path.join(html_folder, video_to_html_name(vid))
         video_list.append({
@@ -167,6 +165,7 @@ def build_video_page_html(
 # --------------------
 def generate_video_page(
     video_path,
+    videos,
     html_folder,
     cover_folder,
     total_videos,
@@ -200,7 +199,7 @@ def generate_video_page(
     rel_video_path = relative_path(html_file, video_path)
 
     video_list_json = build_video_list(
-        os.path.dirname(video_path),
+        videos,
         html_folder,
         html_file
     )
@@ -315,6 +314,7 @@ def generate_chapter_html(
 
         video_page, cover_path, processed_videos = generate_video_page(
             vid_path,
+            videos,
             html_folder,
             cover_folder,
             total_videos,
@@ -397,6 +397,7 @@ def generate_index_html(
             v_path = os.path.join(folder, v)
             page, cover_path, processed_videos = generate_video_page(
                 v_path,
+                videos,
                 html_folder,
                 cover_folder,
                 total_videos,
