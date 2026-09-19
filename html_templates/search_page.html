@@ -83,13 +83,13 @@ a,a:visited,a:hover,a:active {
 ul {
     list-style: none;
     padding: 20px;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 15px;
-    justify-items: center;
 }
 
 li {
+    width: 240px;
     background: #111;
     border-radius: 8px;
     overflow: hidden;
