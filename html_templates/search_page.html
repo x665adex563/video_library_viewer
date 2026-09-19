@@ -23,15 +23,42 @@ a,a:visited,a:hover,a:active {
     word-break:break-word;
 }
 
+#search-container {
+    position: relative;
+    width: 280px;
+    margin: 100px auto 12px auto;
+}
+
 #search {
     display: block;
-    margin: 100px auto 12px auto;
+    margin: 0;
     width: 280px;
     padding: 8px 12px;
     background: #fff;
     color: #000;
     border-radius: 6px;
     border: 1px solid #444;
+}
+
+#search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    background: #222;
+    color: #fff;
+    z-index: 1000;
+}
+
+#search-suggestions div {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+#search-suggestions div:hover {
+    background: #444;
 }
 
 ul {
@@ -84,18 +111,53 @@ li {
   <a href="{{HOME_PAGE}}">🏠</a>
 </div>
 
-<input
-    id="search"
-    type="text"
-    placeholder="搜尋影片"
-    onkeydown="search(event)"
->
+<div id="search-container">
+    <input
+        id="search"
+        type="text"
+        placeholder="搜尋影片"
+        onkeydown="search(event)"
+    >
+    <div id="search-suggestions"></div>
+</div>
 
 <ul>
 {{RESULTS}}
 </ul>
 
 <script>
+const searchInput = document.getElementById("search");
+const suggestions = document.getElementById("search-suggestions");
+const allVideos = {{ALL_VIDEOS}};
+
+searchInput.addEventListener("input", () => {
+    const value = searchInput.value.trim().toLowerCase();
+
+    suggestions.innerHTML = "";
+
+    if (!value) {
+        return;
+    }
+
+    const results = allVideos.filter(video =>
+        video.name.toLowerCase().includes(value)
+    );
+
+    for (const video of results) {
+        const div = document.createElement("div");
+
+        div.textContent = video.name;
+
+        div.onclick = () => {
+            searchInput.value = video.name;
+            sessionStorage.setItem("videoSearch", video.name);
+            window.location.reload();
+        };
+
+        suggestions.appendChild(div);
+    }
+});
+
 function search(event) {
     if (event.key !== "Enter") {
         return;
@@ -111,7 +173,6 @@ function search(event) {
     window.location.href = "search.html";
 }
 
-const allVideos = {{ALL_VIDEOS}};
 const searchValue = sessionStorage.getItem("videoSearch") || "";
 
 const results = allVideos.filter(video =>
