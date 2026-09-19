@@ -127,15 +127,8 @@ li {
 <script>
 const searchInput = document.getElementById("search");
 const suggestions = document.getElementById("search-suggestions");
-const allVideos = {{ALL_VIDEOS}};
 const backToTop = document.getElementById("back-to-top");
-
-backToTop.addEventListener("click", () => {
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-});
+const allVideos = {{ALL_VIDEOS}};
 
 searchInput.addEventListener("input", () => {
     const value = searchInput.value.trim().toLowerCase();
@@ -179,6 +172,13 @@ function search(event) {
     sessionStorage.setItem("videoSearch", value);
     window.location.href = "search.html";
 }
+
+backToTop.addEventListener("click", () => {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+});
 </script>
 </body>
 </html>
