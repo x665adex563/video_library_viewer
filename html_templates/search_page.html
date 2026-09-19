@@ -61,6 +61,25 @@ a,a:visited,a:hover,a:active {
     background: #444;
 }
 
+#back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    background: #111;
+    color: #524d5e;
+    border: none;
+    border-radius: 12px;
+    font-size: 28px;
+}
+
+#back-to-top:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: rgba(0,0,0,0.35);
+    cursor: pointer;
+}
+
 ul {
     list-style: none;
     padding: 20px;
@@ -107,6 +126,8 @@ li {
 
 <body>
 
+<button id="back-to-top">↑</button>
+
 <div id="home">
   <a href="{{HOME_PAGE}}">🏠</a>
 </div>
@@ -128,6 +149,7 @@ li {
 <script>
 const searchInput = document.getElementById("search");
 const suggestions = document.getElementById("search-suggestions");
+const backToTop = document.getElementById("back-to-top");
 const allVideos = {{ALL_VIDEOS}};
 
 searchInput.addEventListener("input", () => {
@@ -191,6 +213,13 @@ for (const video of results) {
         </li>
     `;
 }
+
+backToTop.addEventListener("click", () => {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+});
 </script>
 
 </body>
